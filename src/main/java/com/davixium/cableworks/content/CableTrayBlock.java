@@ -1,4 +1,4 @@
-package com.example.examplemod.content;
+package com.davixium.cableworks.content;
 
 import com.george_vi.electroenergetics.CEESimulatedDevices;
 import com.george_vi.electroenergetics.content.connector.ConnectorDevice;
