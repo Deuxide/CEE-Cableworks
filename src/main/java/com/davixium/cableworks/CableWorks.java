@@ -2,6 +2,7 @@ package com.davixium.cableworks;
 
 import com.davixium.cableworks.content.CableTrayBlock;
 import com.davixium.cableworks.content.TrayNodes;
+import com.davixium.cableworks.content.TrayRules;
 import com.davixium.cableworks.content.TrayShapes;
 
 import net.minecraft.core.registries.Registries;
@@ -30,23 +31,22 @@ public class CableWorks {
 
     // Straight cable tray, "cableworks:cable_tray_straight", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_STRAIGHT = BLOCKS.registerBlock("cable_tray_straight",
-            // Last argument: turns the placement helper may use (0 = in line, 1 = right, 3 = left).
-            // Straight only goes in line.
-            props -> new CableTrayBlock(props, TrayShapes.STRAIGHT, TrayNodes.STRAIGHT, new int[] {0}),
+            // Last argument: placement turns and connection openings for this kind, set in TrayRules.
+            props -> new CableTrayBlock(props, TrayShapes.STRAIGHT, TrayNodes.STRAIGHT, TrayRules.STRAIGHT),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_STRAIGHT_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_straight", CABLE_TRAY_STRAIGHT);
 
     // Bent cable tray, "cableworks:cable_tray_bend", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_BEND = BLOCKS.registerBlock("cable_tray_bend",
-            // Bend turns right (1) or left (3) only.
-            props -> new CableTrayBlock(props, TrayShapes.BEND, TrayNodes.BEND, new int[] {1, 3}),
+            // Placement turns and connection openings for this kind, set in TrayRules.
+            props -> new CableTrayBlock(props, TrayShapes.BEND, TrayNodes.BEND, TrayRules.BEND),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_BEND_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_bend", CABLE_TRAY_BEND);
 
     // Tee cable tray, "cableworks:cable_tray_tee", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_TEE = BLOCKS.registerBlock("cable_tray_tee",
-            // Tee goes in line, or turns right (1) or left (3).
-            props -> new CableTrayBlock(props, TrayShapes.TEE, TrayNodes.TEE, new int[] {0, 1, 3}),
+            // Placement turns and connection openings for this kind, set in TrayRules.
+            props -> new CableTrayBlock(props, TrayShapes.TEE, TrayNodes.TEE, TrayRules.TEE),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_TEE_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_tee", CABLE_TRAY_TEE);
 
