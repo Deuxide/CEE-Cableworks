@@ -9,11 +9,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public final class TrayShapes {
     // Boxes are {x1, y1, z1, x2, y2, z2} in 1/16-block units, for facing NORTH (blockstate y=0).
     public static final double[][] STRAIGHT = {
-        {2, 0, 0, 14, 3, 16},
+        {2, 0, 0, 14, 1, 16},
     };
 
     public static final double[][] BEND = {
-        {2, 0, 2, 16, 3, 16},
+        {2, 0, 2, 16, 1, 16},
     };
 
     /** Builds one VoxelShape per horizontal facing, indexed like Direction#get2DDataValue (N, E, S, W). */
