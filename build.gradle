@@ -40,7 +40,7 @@ repositories {
 
 }
 dependencies {
-    implementation "com.george_vi.electroenergetics:Create-Electro-Energetics:1.21.1-1.2.0"
+    implementation "com.george_vi.electroenergetics:electroenergetics:1.21.1-1.2.0"
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
     implementation("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
