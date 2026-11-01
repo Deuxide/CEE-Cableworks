@@ -180,23 +180,32 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             Direction facing = state.getValue(FACING);
             Vec3 local = ray.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
 
-            // Find the edge of the tray (any of the four horizontal sides) that the crosshair is closest to.
-            Direction nearest = null;
-            double nearestDist = EDGE_RANGE;
-            for (Direction side : Direction.Plane.HORIZONTAL) {
-                double c = side.getStepX() != 0 ? local.x : local.z;
-                double toEdge = side.getStepX() + side.getStepZ() > 0 ? 1 - c : c;
-                if (toEdge < nearestDist) {
-                    nearestDist = toEdge;
-                    nearest = side;
+            // The closest edge along the facing axis (an end) and across it (a side), if the crosshair is near one.
+            Direction end = null;
+            double endDist = EDGE_RANGE;
+            Direction side = null;
+            double sideDist = EDGE_RANGE;
+            for (Direction d : Direction.Plane.HORIZONTAL) {
+                double c = d.getStepX() != 0 ? local.x : local.z;
+                double toEdge = d.getStepX() + d.getStepZ() > 0 ? 1 - c : c;
+                if (d.getAxis() == facing.getAxis()) {
+                    if (toEdge < endDist) {
+                        endDist = toEdge;
+                        end = d;
+                    }
+                } else if (toEdge < sideDist) {
+                    sideDist = toEdge;
+                    side = d;
                 }
             }
-            if (nearest == null)
+            if (end == null && side == null)
                 return PlacementOffset.fail();
 
-            // Ends (same axis as the facing) keep the facing; sides turn the new tray to that side.
-            Direction newFacing = nearest.getAxis() == facing.getAxis() ? facing : nearest;
-            BlockPos newPos = pos.relative(nearest);
+            // Near an end: the new tray goes at that end. Near a side: it faces that side.
+            // Near a corner (both): it goes at the end and faces the side, like a bend starting there.
+            Direction offset = end != null ? end : side;
+            Direction newFacing = side != null ? side : facing;
+            BlockPos newPos = pos.relative(offset);
             if (world.getBlockState(newPos).canBeReplaced())
                 return PlacementOffset.success(newPos, bs -> bs.setValue(FACING, newFacing));
 
