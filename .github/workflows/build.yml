@@ -21,5 +21,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: "Checkout Create: Electro Energetics"
+        uses: actions/checkout@v4
+        with:
+          repository: george8188625/Create-Electro-Energetics
+          ref: 1.21.1
+          # Gradle takes the artifact ID from the folder name, so this must be "electroenergetics"
+          path: electroenergetics
+
+      - name: "Publish Create: Electro Energetics to Maven local"
+        working-directory: electroenergetics
+        run: ./gradlew publishMavenJavaPublicationToMavenLocal
+
       - name: Build with Gradle
         run: ./gradlew build
