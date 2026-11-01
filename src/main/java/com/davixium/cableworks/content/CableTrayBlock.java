@@ -37,11 +37,11 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * Support-only cable tray, used for both the straight and the bend models.
+ * Cable tray, used for the straight, bend and tee models.
  * The model is rotated by the FACING property through the blockstate, and the
  * collision/outline shape is rotated the same way.
  * Uses CEE's connector device, so it behaves like a connector electrically,
- * but canSelfConnect is false, so its nodes can't be wired to each other.
+ * and its nodes can be wired to each other (a short between nodes is allowed).
  */
 public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -144,7 +144,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     @Override
     public boolean canSelfConnect(Level level, BlockPos pos, BlockState state, int id1, int id2) {
-        return false;
+        return id1 != id2;
     }
 
     // One clockwise quarter turn seen from above, the same as TrayShapes.rotateQuarter but for points.

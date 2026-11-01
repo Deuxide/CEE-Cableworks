@@ -1,6 +1,6 @@
 # Cable Works
 
-Cable Works is a support addon for **Create: Electro Energetics** (CEE), which is itself an addon for **Create**. It adds cable trays that carry the electrical wiring. The trays are support-only: they hold up wires and connect to CEE's connector logic, but they do not carry any electricity between each other.
+Cable Works is a support addon for **Create: Electro Energetics** (CEE), which is itself an addon for **Create**. It adds cable trays that carry the electrical wiring. The trays hold up wires and connect to CEE's connector logic. Wires can join any two nodes, including two nodes on the same tray.
 
 The addon is aimed at building neat wire runs. Place the trays along a route, attach wires to their connector nodes, and the wires follow the tray runs.
 
@@ -9,7 +9,7 @@ The addon is aimed at building neat wire runs. Place the trays along a route, at
 
 - **Cable Tray (Straight)**, **Cable Tray (Bend)** and **Cable Tray (Tee)** blocks, with 3D models made in Blockbench.
 - All trays use CEE's connector device, so wires can be attached to them like any other connector.
-- **Support-only**: a tray's nodes cannot be wired to each other. Wires can only join a tray to a different block.
+- **Wiring across a tray**: a wire can join two nodes on the same tray. Short circuits between nodes are allowed.
 - **Tray-to-tray placement**: holding a tray and aiming near an edge of an existing tray places the new tray right beside it, the same way Create's sails attach. Aiming at an end continues the run in a straight line. Aiming at a side places the new tray facing that side, so you can branch or turn a run.
 
 ---
