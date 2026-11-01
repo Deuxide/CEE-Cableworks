@@ -6,6 +6,7 @@ import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -16,12 +17,17 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 /**
  * Support-only cable tray, used for both the straight and the bend models.
- * The model is rotated by the FACING property through the blockstate.
+ * The model is rotated by the FACING property through the blockstate, and the
+ * collision/outline shape is rotated the same way.
  * Uses CEE's connector device, so it behaves like a connector electrically,
  * but canSelfConnect is false, so its nodes can't be wired to each other.
  */
@@ -33,8 +39,14 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     // Rotating the block doesn't move this point, so it works for every facing.
     private static final Vec3 NODE_POS = new Vec3(0.5, 3 / 16d, 0.5);
 
-    public CableTrayBlock(Properties properties) {
+    private final VoxelShape[] shapes;
+
+    /**
+     * @param boxes the collision boxes for this model, from {@link TrayShapes}
+     */
+    public CableTrayBlock(Properties properties, double[][] boxes) {
         super(properties);
+        this.shapes = TrayShapes.build(boxes);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
@@ -61,6 +73,22 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return shapes[state.getValue(FACING).get2DDataValue()];
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return shapes[state.getValue(FACING).get2DDataValue()];
+    }
+
+    // The tray doesn't block light or hide the faces of neighboring blocks.
+    @Override
+    protected @NotNull VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return Shapes.empty();
     }
 
     @Override
