@@ -4,8 +4,17 @@ import com.george_vi.electroenergetics.CEESimulatedDevices;
 import com.george_vi.electroenergetics.content.connector.ConnectorDevice;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
+import net.createmod.catnip.placement.IPlacementHelper;
+import net.createmod.catnip.placement.PlacementHelpers;
+import net.createmod.catnip.placement.PlacementOffset;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -16,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -24,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Support-only cable tray, used for both the straight and the bend models.
@@ -34,6 +45,8 @@ import java.util.Map;
  */
 public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+
+    private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
 
     // All nodes are small, 1x1 pixels.
     private static final float NODE_SIZE = 1 / 16f;
@@ -96,6 +109,15 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     }
 
     @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+        if (placementHelper.matchesItem(stack) && !player.isShiftKeyDown())
+            return placementHelper.getOffset(player, level, state, pos, hitResult).placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);
+
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
     public SimulatedDeviceType<ConnectorDevice> getDevice() {
         return CEESimulatedDevices.CONNECTOR.get();
     }
@@ -131,5 +153,51 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         for (int i = 0; i < facing.get2DDataValue(); i++)
             p = new Vec3(1 - p.z, p.y, p.x);
         return p;
+    }
+
+    /**
+     * Holding a tray and aiming near one of its ends places the new tray right beside it,
+     * in line with the tray's facing, like Create's sails do.
+     */
+    @MethodsReturnNonnullByDefault
+    public static class PlacementHelper implements IPlacementHelper {
+        // How close (in blocks) the crosshair must be to an end of the tray to attach to it.
+        private static final double EDGE_RANGE = 4 / 16d;
+
+        @Override
+        public Predicate<ItemStack> getItemPredicate() {
+            return stack -> stack.getItem() instanceof BlockItem item && item.getBlock() instanceof CableTrayBlock;
+        }
+
+        @Override
+        public Predicate<BlockState> getStatePredicate() {
+            return state -> state.getBlock() instanceof CableTrayBlock;
+        }
+
+        @Override
+        public PlacementOffset getOffset(Player player, Level world, BlockState state, BlockPos pos, BlockHitResult ray) {
+            Direction facing = state.getValue(FACING);
+            Vec3 local = ray.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
+
+            // Find the end of the tray (along its facing axis) that the crosshair is closest to.
+            Direction nearest = null;
+            double nearestDist = EDGE_RANGE;
+            for (Direction end : new Direction[] {facing, facing.getOpposite()}) {
+                double c = end.getStepX() != 0 ? local.x : local.z;
+                double toEdge = end.getStepX() + end.getStepZ() > 0 ? 1 - c : c;
+                if (toEdge < nearestDist) {
+                    nearestDist = toEdge;
+                    nearest = end;
+                }
+            }
+            if (nearest == null)
+                return PlacementOffset.fail();
+
+            BlockPos newPos = pos.relative(nearest);
+            if (world.getBlockState(newPos).canBeReplaced())
+                return PlacementOffset.success(newPos, bs -> bs.setValue(FACING, facing));
+
+            return PlacementOffset.fail();
+        }
     }
 }
