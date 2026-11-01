@@ -163,7 +163,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     @MethodsReturnNonnullByDefault
     public static class PlacementHelper implements IPlacementHelper {
         // How close (in blocks) the crosshair must be to an edge of the tray to attach to it.
-        private static final double EDGE_RANGE = 4 / 16d;
+        private static final double EDGE_RANGE = 6 / 16d;
 
         @Override
         public Predicate<ItemStack> getItemPredicate() {
