@@ -22,11 +22,15 @@ public class CableWorks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
 
-    // Creates a new support-only cable tray with the id "cableworks:cable_tray", using CEE's connector logic
-    public static final DeferredBlock<CableTrayBlock> CABLE_TRAY = BLOCKS.registerBlock("cable_tray", CableTrayBlock::new,
+    // Straight cable tray, "cableworks:cable_tray_straight", using CEE's connector logic
+    public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_STRAIGHT = BLOCKS.registerBlock("cable_tray_straight", CableTrayBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f));
-    // Creates a new BlockItem with the id "cableworks:cable_tray"
-    public static final DeferredItem<BlockItem> CABLE_TRAY_ITEM = ITEMS.registerSimpleBlockItem("cable_tray", CABLE_TRAY);
+    public static final DeferredItem<BlockItem> CABLE_TRAY_STRAIGHT_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_straight", CABLE_TRAY_STRAIGHT);
+
+    // Bent cable tray, "cableworks:cable_tray_bend", using CEE's connector logic
+    public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_BEND = BLOCKS.registerBlock("cable_tray_bend", CableTrayBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f));
+    public static final DeferredItem<BlockItem> CABLE_TRAY_BEND_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_bend", CABLE_TRAY_BEND);
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus and pass them in automatically.
@@ -35,13 +39,14 @@ public class CableWorks {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
 
-        // Add the cable tray item to the building blocks tab
+        // Add the cable tray items to the building blocks tab
         modEventBus.addListener(this::addCreative);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(CABLE_TRAY_ITEM);
+            event.accept(CABLE_TRAY_STRAIGHT_ITEM);
+            event.accept(CABLE_TRAY_BEND_ITEM);
         }
     }
 }
