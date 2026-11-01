@@ -55,15 +55,26 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     // Node positions for facing NORTH, block-local (0..1). The index is the node id.
     // Rotated by facing with the same quarter turn as the collision shapes (see rotateNode).
     private final Vec3[] northNodes;
+    // Clockwise quarter turns applied to the facing the placement helper gives a tray placed beside this one.
+    private final int placementTurns;
 
     /**
      * @param boxes      the collision boxes for this model, from {@link TrayShapes}
      * @param northNodes the node positions for this model, from {@link TrayNodes}
      */
     public CableTrayBlock(Properties properties, double[][] boxes, Vec3[] northNodes) {
+        this(properties, boxes, northNodes, 0);
+    }
+
+    /**
+     * @param placementTurns clockwise quarter turns (0-3) applied to the facing the placement helper
+     *                       gives a tray placed beside this one, so each kind of tray can match its model
+     */
+    public CableTrayBlock(Properties properties, double[][] boxes, Vec3[] northNodes, int placementTurns) {
         super(properties);
         this.shapes = TrayShapes.build(boxes);
         this.northNodes = northNodes;
+        this.placementTurns = placementTurns;
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
@@ -147,6 +158,13 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return id1 != id2;
     }
 
+    private static Direction turnClockwise(Direction direction, int turns) {
+        Direction result = direction;
+        for (int i = 0; i < turns; i++)
+            result = result.getClockWise();
+        return result;
+    }
+
     // One clockwise quarter turn seen from above, the same as TrayShapes.rotateQuarter but for points.
     private static Vec3 rotateNode(Vec3 north, Direction facing) {
         Vec3 p = north;
@@ -204,7 +222,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             // Near an end: the new tray goes at that end. Near a side: it faces that side.
             // Near a corner (both): it goes at the end and faces the side, like a bend starting there.
             Direction offset = end != null ? end : side;
-            Direction newFacing = side != null ? side : facing;
+            Direction newFacing = side != null ? turnClockwise(side, ((CableTrayBlock) state.getBlock()).placementTurns) : facing;
             BlockPos newPos = pos.relative(offset);
             if (world.getBlockState(newPos).canBeReplaced())
                 return PlacementOffset.success(newPos, bs -> bs.setValue(FACING, newFacing));

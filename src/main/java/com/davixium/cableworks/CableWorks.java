@@ -30,19 +30,20 @@ public class CableWorks {
 
     // Straight cable tray, "cableworks:cable_tray_straight", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_STRAIGHT = BLOCKS.registerBlock("cable_tray_straight",
-            props -> new CableTrayBlock(props, TrayShapes.STRAIGHT, TrayNodes.STRAIGHT),
+            // Last argument: clockwise quarter turns for the facing of a tray placed beside this one.
+            props -> new CableTrayBlock(props, TrayShapes.STRAIGHT, TrayNodes.STRAIGHT, 0),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_STRAIGHT_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_straight", CABLE_TRAY_STRAIGHT);
 
     // Bent cable tray, "cableworks:cable_tray_bend", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_BEND = BLOCKS.registerBlock("cable_tray_bend",
-            props -> new CableTrayBlock(props, TrayShapes.BEND, TrayNodes.BEND),
+            props -> new CableTrayBlock(props, TrayShapes.BEND, TrayNodes.BEND, 0),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_BEND_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_bend", CABLE_TRAY_BEND);
 
     // Tee cable tray, "cableworks:cable_tray_tee", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_TEE = BLOCKS.registerBlock("cable_tray_tee",
-            props -> new CableTrayBlock(props, TrayShapes.TEE, TrayNodes.TEE),
+            props -> new CableTrayBlock(props, TrayShapes.TEE, TrayNodes.TEE, 0),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_TEE_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_tee", CABLE_TRAY_TEE);
 
