@@ -1,6 +1,7 @@
 package com.davixium.cableworks;
 
 import com.davixium.cableworks.content.CableTrayBlock;
+import com.davixium.cableworks.content.TrayNodes;
 import com.davixium.cableworks.content.TrayShapes;
 
 import net.minecraft.world.item.BlockItem;
@@ -25,13 +26,13 @@ public class CableWorks {
 
     // Straight cable tray, "cableworks:cable_tray_straight", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_STRAIGHT = BLOCKS.registerBlock("cable_tray_straight",
-            props -> new CableTrayBlock(props, TrayShapes.STRAIGHT),
+            props -> new CableTrayBlock(props, TrayShapes.STRAIGHT, TrayNodes.STRAIGHT),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_STRAIGHT_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_straight", CABLE_TRAY_STRAIGHT);
 
     // Bent cable tray, "cableworks:cable_tray_bend", using CEE's connector logic
     public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_BEND = BLOCKS.registerBlock("cable_tray_bend",
-            props -> new CableTrayBlock(props, TrayShapes.BEND),
+            props -> new CableTrayBlock(props, TrayShapes.BEND, TrayNodes.BEND),
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
     public static final DeferredItem<BlockItem> CABLE_TRAY_BEND_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_bend", CABLE_TRAY_BEND);
 

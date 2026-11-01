@@ -35,29 +35,22 @@ import java.util.Map;
 public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    // Node positions for facing NORTH, block-local (0..1). The index is the node id.
-    // Rotated by facing with the same quarter turn as the collision shapes (see rotateNode).
-    // These are placeholders to set by hand.
-    private static final Vec3[] NORTH_NODE_POSITIONS = {
-            new Vec3(13/16d, 1.5 / 16d, 0.5),   // 0 (placeholder)
-            new Vec3(11/16d, 1.5 / 16d, 0.5),   // 1 (placeholder)
-            new Vec3(9/16d, 1.5 / 16d, 0.5),   // 2 (placeholder)
-            new Vec3(7/16d, 1.5 / 16d, 0.5),   // 3 (placeholder)
-            new Vec3(5/16d, 1.5 / 16d, 0.5),  // 4 (placeholder)
-            new Vec3(3/16d, 1.5 / 16d, 0.5),  // 5 (placeholder)
-    };
-
     // All nodes are small, 1x1 pixels.
     private static final float NODE_SIZE = 1 / 16f;
 
     private final VoxelShape[] shapes;
+    // Node positions for facing NORTH, block-local (0..1). The index is the node id.
+    // Rotated by facing with the same quarter turn as the collision shapes (see rotateNode).
+    private final Vec3[] northNodes;
 
     /**
-     * @param boxes the collision boxes for this model, from {@link TrayShapes}
+     * @param boxes      the collision boxes for this model, from {@link TrayShapes}
+     * @param northNodes the node positions for this model, from {@link TrayNodes}
      */
-    public CableTrayBlock(Properties properties, double[][] boxes) {
+    public CableTrayBlock(Properties properties, double[][] boxes, Vec3[] northNodes) {
         super(properties);
         this.shapes = TrayShapes.build(boxes);
+        this.northNodes = northNodes;
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
@@ -110,16 +103,16 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
         Map<Integer, Vec3> positions = new LinkedHashMap<>();
-        for (int id = 0; id < NORTH_NODE_POSITIONS.length; id++)
+        for (int id = 0; id < northNodes.length; id++)
             positions.put(id, getNodePosition(level, pos, state, id));
         return positions;
     }
 
     @Override
     public Vec3 getNodePosition(Level level, BlockPos pos, BlockState state, int id) {
-        if (id < 0 || id >= NORTH_NODE_POSITIONS.length)
+        if (id < 0 || id >= northNodes.length)
             return null;
-        return rotateNode(NORTH_NODE_POSITIONS[id], state.getValue(FACING));
+        return rotateNode(northNodes[id], state.getValue(FACING));
     }
 
     @Override
