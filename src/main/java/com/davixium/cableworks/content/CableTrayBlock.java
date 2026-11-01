@@ -39,12 +39,12 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     // Rotated by facing with the same quarter turn as the collision shapes (see rotateNode).
     // These are placeholders to set by hand.
     private static final Vec3[] NORTH_NODE_POSITIONS = {
-            new Vec3(0.15, 3 / 16d, 0.5),   // 0 (placeholder)
-            new Vec3(0.85, 3 / 16d, 0.5),   // 1 (placeholder)
-            new Vec3(0.5, 3 / 16d, 0.15),   // 2 (placeholder)
-            new Vec3(0.5, 3 / 16d, 0.85),   // 3 (placeholder)
-            new Vec3(0.25, 3 / 16d, 0.25),  // 4 (placeholder)
-            new Vec3(0.75, 3 / 16d, 0.75),  // 5 (placeholder)
+            new Vec3(13/16d, 1.5 / 16d, 0.5),   // 0 (placeholder)
+            new Vec3(11/16d, 1.5 / 16d, 0.5),   // 1 (placeholder)
+            new Vec3(9/16d, 1.5 / 16d, 0.5),   // 2 (placeholder)
+            new Vec3(7/16d, 1.5 / 16d, 0.5),   // 3 (placeholder)
+            new Vec3(5/16d, 1.5 / 16d, 0.5),  // 4 (placeholder)
+            new Vec3(3/16d, 1.5 / 16d, 0.5),  // 5 (placeholder)
     };
 
     // All nodes are small, 1x1 pixels.
