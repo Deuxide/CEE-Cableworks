@@ -156,12 +156,13 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     }
 
     /**
-     * Holding a tray and aiming near one of its ends places the new tray right beside it,
-     * in line with the tray's facing, like Create's sails do.
+     * Holding a tray and aiming near one of its edges places the new tray right beside it.
+     * Aiming at an end keeps the tray's facing, so the run continues straight. Aiming at a
+     * side turns the new tray to face that side, like Create's sails do.
      */
     @MethodsReturnNonnullByDefault
     public static class PlacementHelper implements IPlacementHelper {
-        // How close (in blocks) the crosshair must be to an end of the tray to attach to it.
+        // How close (in blocks) the crosshair must be to an edge of the tray to attach to it.
         private static final double EDGE_RANGE = 4 / 16d;
 
         @Override
@@ -179,23 +180,25 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             Direction facing = state.getValue(FACING);
             Vec3 local = ray.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
 
-            // Find the end of the tray (along its facing axis) that the crosshair is closest to.
+            // Find the edge of the tray (any of the four horizontal sides) that the crosshair is closest to.
             Direction nearest = null;
             double nearestDist = EDGE_RANGE;
-            for (Direction end : new Direction[] {facing, facing.getOpposite()}) {
-                double c = end.getStepX() != 0 ? local.x : local.z;
-                double toEdge = end.getStepX() + end.getStepZ() > 0 ? 1 - c : c;
+            for (Direction side : Direction.Plane.HORIZONTAL) {
+                double c = side.getStepX() != 0 ? local.x : local.z;
+                double toEdge = side.getStepX() + side.getStepZ() > 0 ? 1 - c : c;
                 if (toEdge < nearestDist) {
                     nearestDist = toEdge;
-                    nearest = end;
+                    nearest = side;
                 }
             }
             if (nearest == null)
                 return PlacementOffset.fail();
 
+            // Ends (same axis as the facing) keep the facing; sides turn the new tray to that side.
+            Direction newFacing = nearest.getAxis() == facing.getAxis() ? facing : nearest;
             BlockPos newPos = pos.relative(nearest);
             if (world.getBlockState(newPos).canBeReplaced())
-                return PlacementOffset.success(newPos, bs -> bs.setValue(FACING, facing));
+                return PlacementOffset.success(newPos, bs -> bs.setValue(FACING, newFacing));
 
             return PlacementOffset.fail();
         }

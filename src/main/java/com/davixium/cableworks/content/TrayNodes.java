@@ -26,6 +26,16 @@ public final class TrayNodes {
             new Vec3(3/16d, 1.5 / 16d, 3/16d),
     };
 
+    // Placeholder positions for the tee tray, to be set by hand.
+    public static final Vec3[] TEE = {
+            new Vec3(13/16d, 1.5 / 16d, 0.5),
+            new Vec3(11/16d, 1.5 / 16d, 0.5),
+            new Vec3(9/16d, 1.5 / 16d, 0.5),
+            new Vec3(7/16d, 1.5 / 16d, 0.5),
+            new Vec3(5/16d, 1.5 / 16d, 0.5),
+            new Vec3(3/16d, 1.5 / 16d, 0.5),
+    };
+
     private TrayNodes() {
     }
 }
