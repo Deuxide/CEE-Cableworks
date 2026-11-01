@@ -13,7 +13,7 @@ public final class TrayShapes {
     };
 
     public static final double[][] BEND = {
-        {0, 0, 0, 14, 3, 14},
+        {2, 0, 2, 16, 3, 16},
     };
 
     /** Builds one VoxelShape per horizontal facing, indexed like Direction#get2DDataValue (N, E, S, W). */
