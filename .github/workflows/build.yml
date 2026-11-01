@@ -26,18 +26,12 @@ jobs:
         with:
           repository: george8188625/Create-Electro-Energetics
           ref: 1.21.1
-          path: cee
+          # Gradle takes the artifact ID from the folder name, so this must be "electroenergetics"
+          path: electroenergetics
 
       - name: "Publish Create: Electro Energetics to Maven local"
-        working-directory: cee
+        working-directory: electroenergetics
         run: ./gradlew publishMavenJavaPublicationToMavenLocal
-
-      - name: "Show where CEE was published"
-        run: |
-          echo "HOME=$HOME"
-          find "$HOME/.m2/repository/com/george_vi" -type f 2>/dev/null || echo "nothing under ~/.m2 for com.george_vi"
-          find "$HOME/.m2" -name "*.pom" -newer cee/build.gradle 2>/dev/null | head -20
-          ls -la cee/build/libs 2>/dev/null || echo "no cee/build/libs"
 
       - name: Build with Gradle
         run: ./gradlew build
