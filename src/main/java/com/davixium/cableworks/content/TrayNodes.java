@@ -18,12 +18,12 @@ public final class TrayNodes {
     };
 
     public static final Vec3[] BEND = {
-            new Vec3(13/16d, 1.5 / 16d, 0.5),
-            new Vec3(11/16d, 1.5 / 16d, 0.5),
-            new Vec3(9/16d, 1.5 / 16d, 0.5),
-            new Vec3(7/16d, 1.5 / 16d, 0.5),
-            new Vec3(5/16d, 1.5 / 16d, 0.5),
-            new Vec3(3/16d, 1.5 / 16d, 0.5),
+            new Vec3(13/16d, 1.5 / 16d, 13/16d),
+            new Vec3(11/16d, 1.5 / 16d, 11/16d),
+            new Vec3(9/16d, 1.5 / 16d, 9/16d),
+            new Vec3(7/16d, 1.5 / 16d, 7/16d),
+            new Vec3(5/16d, 1.5 / 16d, 5/16d),
+            new Vec3(3/16d, 1.5 / 16d, 3/16d),
     };
 
     private TrayNodes() {
