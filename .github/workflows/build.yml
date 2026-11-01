@@ -32,5 +32,12 @@ jobs:
         working-directory: cee
         run: ./gradlew publishMavenJavaPublicationToMavenLocal
 
+      - name: "Show where CEE was published"
+        run: |
+          echo "HOME=$HOME"
+          find "$HOME/.m2/repository/com/george_vi" -type f 2>/dev/null || echo "nothing under ~/.m2 for com.george_vi"
+          find "$HOME/.m2" -name "*.pom" -newer cee/build.gradle 2>/dev/null | head -20
+          ls -la cee/build/libs 2>/dev/null || echo "no cee/build/libs"
+
       - name: Build with Gradle
         run: ./gradlew build
