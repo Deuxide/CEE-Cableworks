@@ -37,20 +37,18 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     // Node positions for facing NORTH, block-local (0..1). The index is the node id.
     // Rotated by facing with the same quarter turn as the collision shapes (see rotateNode).
-    // Node 0 is the original centered node; nodes 1-6 are placeholders to set by hand.
+    // These are placeholders to set by hand.
     private static final Vec3[] NORTH_NODE_POSITIONS = {
-            new Vec3(0.5, 3 / 16d, 0.5),    // 0 (centered, normal size)
-            new Vec3(0.15, 3 / 16d, 0.5),   // 1 (placeholder)
-            new Vec3(0.85, 3 / 16d, 0.5),   // 2 (placeholder)
-            new Vec3(0.5, 3 / 16d, 0.15),   // 3 (placeholder)
-            new Vec3(0.5, 3 / 16d, 0.85),   // 4 (placeholder)
-            new Vec3(0.25, 3 / 16d, 0.25),  // 5 (placeholder)
-            new Vec3(0.75, 3 / 16d, 0.75),  // 6 (placeholder)
+            new Vec3(0.15, 3 / 16d, 0.5),   // 0 (placeholder)
+            new Vec3(0.85, 3 / 16d, 0.5),   // 1 (placeholder)
+            new Vec3(0.5, 3 / 16d, 0.15),   // 2 (placeholder)
+            new Vec3(0.5, 3 / 16d, 0.85),   // 3 (placeholder)
+            new Vec3(0.25, 3 / 16d, 0.25),  // 4 (placeholder)
+            new Vec3(0.75, 3 / 16d, 0.75),  // 5 (placeholder)
     };
 
-    private static final float NODE_SIZE = 4 / 16f;
-    // The extra nodes are small, 1x1 pixels.
-    private static final float SMALL_NODE_SIZE = 1 / 16f;
+    // All nodes are small, 1x1 pixels.
+    private static final float NODE_SIZE = 1 / 16f;
 
     private final VoxelShape[] shapes;
 
@@ -126,7 +124,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     @Override
     public float getNodeSize(Level level, BlockPos pos, BlockState state, int id) {
-        return id == 0 ? NODE_SIZE : SMALL_NODE_SIZE;
+        return NODE_SIZE;
     }
 
     @Override
