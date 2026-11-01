@@ -7,10 +7,10 @@ The addon is aimed at building neat wire runs. Place the trays along a route, at
 ---
 ## Current Features
 
-- **Cable Tray (Straight)** and **Cable Tray (Bend)** blocks, with 3D models made in Blockbench.
-- Both trays use CEE's connector device, so wires can be attached to them like any other connector.
+- **Cable Tray (Straight)**, **Cable Tray (Bend)** and **Cable Tray (Tee)** blocks, with 3D models made in Blockbench.
+- All trays use CEE's connector device, so wires can be attached to them like any other connector.
 - **Support-only**: a tray's nodes cannot be wired to each other. Wires can only join a tray to a different block.
-- **Tray-to-tray placement**: holding a tray and aiming near one end of an existing tray places the new tray right beside it, in line with its facing, the same way Create's sails attach.
+- **Tray-to-tray placement**: holding a tray and aiming near an edge of an existing tray places the new tray right beside it, the same way Create's sails attach. Aiming at an end continues the run in a straight line. Aiming at a side places the new tray facing that side, so you can branch or turn a run.
 
 ---
 ## Requirements
