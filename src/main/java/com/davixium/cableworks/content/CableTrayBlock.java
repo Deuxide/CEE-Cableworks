@@ -204,9 +204,20 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             return state -> state.getBlock() instanceof CableTrayBlock;
         }
 
+        // The turns of the tray kind being placed, from the held item. The aimed-at tray's turns are only a fallback.
+        private static int[] heldAllowedTurns(Player player, int[] fallback) {
+            if (player == null)
+                return fallback;
+            for (ItemStack stack : new ItemStack[] {player.getMainHandItem(), player.getOffhandItem()}) {
+                if (stack.getItem() instanceof BlockItem item && item.getBlock() instanceof CableTrayBlock tray)
+                    return tray.allowedTurns;
+            }
+            return fallback;
+        }
+
         @Override
         public PlacementOffset getOffset(Player player, Level world, BlockState state, BlockPos pos, BlockHitResult ray) {
-            int[] allowed = ((CableTrayBlock) state.getBlock()).allowedTurns;
+            int[] allowed = heldAllowedTurns(player, ((CableTrayBlock) state.getBlock()).allowedTurns);
             Direction facing = state.getValue(FACING);
             Direction right = facing.getClockWise();
             Vec3 local = ray.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
