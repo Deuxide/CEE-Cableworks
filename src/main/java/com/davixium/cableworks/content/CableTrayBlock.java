@@ -55,26 +55,19 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     // Node positions for facing NORTH, block-local (0..1). The index is the node id.
     // Rotated by facing with the same quarter turn as the collision shapes (see rotateNode).
     private final Vec3[] northNodes;
-    // Clockwise quarter turns applied to the facing the placement helper gives a tray placed beside this one.
-    private final int placementTurns;
+    // Turns a tray placed by the placement helper may face: 0 = in line, 1 = right, 3 = left.
+    private final int[] allowedTurns;
 
     /**
-     * @param boxes      the collision boxes for this model, from {@link TrayShapes}
-     * @param northNodes the node positions for this model, from {@link TrayNodes}
+     * @param boxes        the collision boxes for this model, from {@link TrayShapes}
+     * @param northNodes   the node positions for this model, from {@link TrayNodes}
+     * @param allowedTurns the turns the placement helper may use for this kind: 0 = in line, 1 = right, 3 = left
      */
-    public CableTrayBlock(Properties properties, double[][] boxes, Vec3[] northNodes) {
-        this(properties, boxes, northNodes, 0);
-    }
-
-    /**
-     * @param placementTurns clockwise quarter turns (0-3) applied to the facing the placement helper
-     *                       gives a tray placed beside this one, so each kind of tray can match its model
-     */
-    public CableTrayBlock(Properties properties, double[][] boxes, Vec3[] northNodes, int placementTurns) {
+    public CableTrayBlock(Properties properties, double[][] boxes, Vec3[] northNodes, int[] allowedTurns) {
         super(properties);
         this.shapes = TrayShapes.build(boxes);
         this.northNodes = northNodes;
-        this.placementTurns = placementTurns;
+        this.allowedTurns = allowedTurns;
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
@@ -158,11 +151,25 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return id1 != id2;
     }
 
+    // Turns a direction clockwise by the given number of quarter turns.
     private static Direction turnClockwise(Direction direction, int turns) {
         Direction result = direction;
         for (int i = 0; i < turns; i++)
             result = result.getClockWise();
         return result;
+    }
+
+    private static boolean contains(int[] values, int value) {
+        for (int v : values)
+            if (v == value)
+                return true;
+        return false;
+    }
+
+    // The end of the tray (along its facing) that the local point is closer to.
+    private static Direction nearestEnd(Direction facing, Vec3 local) {
+        double along = (local.x - 0.5) * facing.getStepX() + (local.z - 0.5) * facing.getStepZ();
+        return along >= 0 ? facing : facing.getOpposite();
     }
 
     // One clockwise quarter turn seen from above, the same as TrayShapes.rotateQuarter but for points.
@@ -174,9 +181,13 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     }
 
     /**
-     * Holding a tray and aiming near one of its edges places the new tray right beside it.
-     * Aiming at an end keeps the tray's facing, so the run continues straight. Aiming at a
-     * side turns the new tray to face that side, like Create's sails do.
+     * Holding a tray and aiming near its edges places the new tray beside it, using the turns
+     * allowed for that kind of tray:
+     * - near an end: the new tray goes at that end, in line (turn 0), or turned to the nearer side
+     *   if this kind can't go in line.
+     * - near a side: the new tray goes beside that side and turns toward it (1 = right, 3 = left).
+     * - near a corner (an end and a side): the new tray goes at the end and turns toward the side.
+     * A kind that can't turn sideways (the straight) puts its tray at the end nearest the aim instead.
      */
     @MethodsReturnNonnullByDefault
     public static class PlacementHelper implements IPlacementHelper {
@@ -195,7 +206,9 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
         @Override
         public PlacementOffset getOffset(Player player, Level world, BlockState state, BlockPos pos, BlockHitResult ray) {
+            int[] allowed = ((CableTrayBlock) state.getBlock()).allowedTurns;
             Direction facing = state.getValue(FACING);
+            Direction right = facing.getClockWise();
             Vec3 local = ray.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
 
             // The closest edge along the facing axis (an end) and across it (a side), if the crosshair is near one.
@@ -219,10 +232,32 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             if (end == null && side == null)
                 return PlacementOffset.fail();
 
-            // Near an end: the new tray goes at that end. Near a side: it faces that side.
-            // Near a corner (both): it goes at the end and faces the side, like a bend starting there.
-            Direction offset = end != null ? end : side;
-            Direction newFacing = side != null ? turnClockwise(side, ((CableTrayBlock) state.getBlock()).placementTurns) : facing;
+            // A tray that can't turn sideways uses the end nearest the aim, even when aiming at a side.
+            boolean turnsSideways = contains(allowed, 1) || contains(allowed, 3);
+            if (end == null && !turnsSideways)
+                end = nearestEnd(facing, local);
+
+            Direction offset;
+            int turn;
+            if (end != null) {
+                offset = end;
+                if (side != null) {
+                    turn = side == right ? 1 : 3; // corner: turn toward the side
+                } else if (contains(allowed, 0)) {
+                    turn = 0; // end: continue in line
+                } else {
+                    // end only, but this kind must turn: pick the side the aim is on
+                    double across = (local.x - 0.5) * right.getStepX() + (local.z - 0.5) * right.getStepZ();
+                    turn = across >= 0 ? 1 : 3;
+                }
+            } else {
+                offset = side;
+                turn = side == right ? 1 : 3; // side: turn toward that side
+            }
+            if (!contains(allowed, turn))
+                turn = allowed[0];
+
+            Direction newFacing = turnClockwise(facing, turn);
             BlockPos newPos = pos.relative(offset);
             if (world.getBlockState(newPos).canBeReplaced())
                 return PlacementOffset.success(newPos, bs -> bs.setValue(FACING, newFacing));
