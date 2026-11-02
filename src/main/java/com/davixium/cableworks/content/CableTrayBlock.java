@@ -5,6 +5,9 @@ import com.george_vi.electroenergetics.CEESimulatedDevices;
 import com.george_vi.electroenergetics.content.connector.ConnectorDevice;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
+import net.createmod.catnip.placement.IPlacementHelper;
+import net.createmod.catnip.placement.PlacementHelpers;
+import net.createmod.catnip.placement.PlacementOffset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -37,9 +40,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
- * Cable tray block. One block position holds two layers: a bottom tray and a top tray at 13/16 height.
+ * Cable tray block. One block position holds two layers: a bottom tray and a top tray at 12/16 height.
  * Each layer has its own kind and facing, stored as blockstate properties (no block entity).
  * Uses CEE's connector device, so it behaves like a connector electrically,
  * and its nodes can be wired to each other (a short between nodes is allowed).
@@ -79,7 +83,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         }
     }
 
-    /** Which layer of the block: the bottom tray, or the top tray at 13/16. */
+    /** Which layer of the block: the bottom tray, or the top tray at 12/16. */
     public enum Slot { BOTTOM, TOP }
 
     public static final EnumProperty<TrayLayer> BOTTOM_LAYER = EnumProperty.create("bottom", TrayLayer.class);
@@ -90,12 +94,14 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     // All nodes are small, 1x1 pixels.
     private static final float NODE_SIZE = 1 / 16f;
     // The top layer sits this high in the block.
-    private static final double TOP_HEIGHT = 13 / 16d;
+    private static final double TOP_HEIGHT = 12 / 16d;
     // Node ids on the top layer start here, so they never clash with the bottom layer's ids.
     private static final int TOP_NODE_OFFSET = 100;
 
     // Collision shape for each (bottom, top) pair, where each index is layer ordinal * 4 + facing.
     private static final VoxelShape[][] SHAPES = new VoxelShape[16][16];
+
+    private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
 
     static {
         VoxelShape[] bottom = new VoxelShape[16];
@@ -105,7 +111,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             if (boxes == null)
                 continue;
             VoxelShape[] low = TrayShapes.build(boxes, 0);
-            VoxelShape[] high = TrayShapes.build(boxes, 13);
+            VoxelShape[] high = TrayShapes.build(boxes, 12);
             for (int facing = 0; facing < 4; facing++) {
                 bottom[index(layer, facing)] = low[facing];
                 top[index(layer, facing)] = high[facing];
@@ -190,9 +196,16 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return context.getClickLocation().y - context.getClickedPos().getY() > 0.5 ? Slot.TOP : Slot.BOTTOM;
     }
 
+    /** The state after placing the target: the existing tray block at that spot, or a new one, with the layer filled. */
+    public BlockState placedState(Level level, PlacementTarget target) {
+        BlockState existing = level.getBlockState(target.pos());
+        BlockState base = existing.is(this) ? existing : emptyState();
+        return withLayer(base, target.slot(), target.layer(), target.facing());
+    }
+
     /**
-     * The state a tray placed from a click on a normal block gets: a new block, or a free layer of a tray block
-     * already there. Null when that layer is taken.
+     * The state a tray placed from a click on a normal block gets: a new block, with the layer the click is in.
+     * Null when that layer is taken.
      */
     public BlockState placementState(BlockPlaceContext context, TrayRules.Kind kind) {
         BlockState existing = context.getLevel().getBlockState(context.getClickedPos());
@@ -206,14 +219,6 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return withLayer(emptyState(), slotForClick(context), TrayLayer.STRAIGHT, context.getHorizontalDirection());
-    }
-
-    // A tray can be added to a free layer of this block, like a slab merging into a slab.
-    @Override
-    protected boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
-        if (!(context.getItemInHand().getItem() instanceof TrayItem))
-            return false;
-        return layerOf(state, slotForClick(context)) == TrayLayer.NONE;
     }
 
     @Override
@@ -261,7 +266,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!(stack.getItem() instanceof TrayItem item) || player.isShiftKeyDown())
+        if (!(stack.getItem() instanceof TrayItem item))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         PlacementTarget target = PlacementHelper.resolve(player, level, state, pos, hitResult, item.kind());
@@ -270,9 +275,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         if (level.isClientSide)
             return ItemInteractionResult.SUCCESS;
 
-        BlockState existing = level.getBlockState(target.pos());
-        BlockState base = existing.is(this) ? existing : emptyState();
-        level.setBlock(target.pos(), withLayer(base, target.slot(), TrayLayer.of(item.kind()), target.facing()), Block.UPDATE_ALL);
+        level.setBlock(target.pos(), placedState(level, target), Block.UPDATE_ALL);
         if (!player.getAbilities().instabuild)
             stack.shrink(1);
         level.playSound(null, target.pos(), state.getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1f, 0.8f);
@@ -384,26 +387,62 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return p;
     }
 
-    /** A tray placement: the block position, the layer to fill, and the new tray's facing. */
-    public record PlacementTarget(BlockPos pos, Slot slot, Direction facing) {
+    /** A tray placement: the block position, the layer to fill, the kind, and the new tray's facing. */
+    public record PlacementTarget(BlockPos pos, Slot slot, TrayLayer layer, Direction facing) {
     }
 
     /**
-     * Works out where a held tray goes when aimed at a tray block.
-     * - Top face of a tray with a free top layer: the top layer, facing the way the player looks.
+     * Holding a tray and aiming at a tray block places it, and shows the preview.
+     * - Top face of a tray with a free top layer, while crouching: the top layer, facing the way the player looks.
+     *   Without crouching, the click goes to a normal placement (the block above).
      * - Anywhere else on the tray: the layer under the crosshair is the aimed layer, and the new tray goes
      *   beside it, using the TrayRules preview table for the aimed layer's kind and facing.
      */
-    static final class PlacementHelper {
+    public static class PlacementHelper implements IPlacementHelper {
         // How close (in blocks) the crosshair must be to an edge of the tray to attach to it.
         private static final double EDGE_RANGE = 6 / 16d;
+
+        @Override
+        public Predicate<ItemStack> getItemPredicate() {
+            return stack -> stack.getItem() instanceof TrayItem;
+        }
+
+        @Override
+        public Predicate<BlockState> getStatePredicate() {
+            return state -> state.getBlock() instanceof CableTrayBlock;
+        }
+
+        @Override
+        public PlacementOffset getOffset(Player player, Level level, BlockState state, BlockPos pos, BlockHitResult ray) {
+            TrayRules.Kind held = heldKind(player);
+            if (held == null)
+                return PlacementOffset.fail();
+            PlacementTarget target = resolve(player, level, state, pos, ray, held);
+            if (target == null)
+                return PlacementOffset.fail();
+            CableTrayBlock block = (CableTrayBlock) state.getBlock();
+            return PlacementOffset.success(target.pos(), bs -> block.placedState(level, target));
+        }
+
+        // The kind of tray held in either hand, or null if neither hand holds one.
+        static TrayRules.Kind heldKind(Player player) {
+            for (ItemStack stack : new ItemStack[] {player.getMainHandItem(), player.getOffhandItem()}) {
+                if (stack.getItem() instanceof TrayItem item)
+                    return item.kind();
+            }
+            return null;
+        }
 
         static PlacementTarget resolve(Player player, Level level, BlockState state, BlockPos pos, BlockHitResult hit, TrayRules.Kind held) {
             boolean hasBottom = layerOf(state, Slot.BOTTOM) != TrayLayer.NONE;
             boolean hasTop = layerOf(state, Slot.TOP) != TrayLayer.NONE;
 
-            if (hit.getDirection() == Direction.UP && !hasTop)
-                return new PlacementTarget(pos, Slot.TOP, player.getDirection());
+            if (hit.getDirection() == Direction.UP && !hasTop) {
+                // Stacking needs crouch. Without it the click is a normal placement, in the block above.
+                if (!player.isShiftKeyDown())
+                    return null;
+                return new PlacementTarget(pos, Slot.TOP, TrayLayer.of(held), player.getDirection());
+            }
 
             Vec3 local = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
             // The aimed layer: the top one when the crosshair is in the upper half, or when it's the only one.
@@ -438,7 +477,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             } else if (!target.canBeReplaced()) {
                 return null;
             }
-            return new PlacementTarget(newPos, aimed, turnClockwise(facing, rotations[side]));
+            return new PlacementTarget(newPos, aimed, TrayLayer.of(held), turnClockwise(facing, rotations[side]));
         }
 
         // The cursor zone from its offset: 'along' is toward the facing, 'across' toward the right.
