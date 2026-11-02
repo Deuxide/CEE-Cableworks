@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * Cable tray block. One block position holds two layers: a bottom tray and a top tray at 12/16 height.
+ * Cable tray block. One block position holds two layers: a bottom tray and a top tray at 8/16 height.
  * Each layer has its own kind and facing, stored as blockstate properties (no block entity).
  * Uses CEE's connector device, so it behaves like a connector electrically,
  * and its nodes can be wired to each other (a short between nodes is allowed).
@@ -83,7 +83,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         }
     }
 
-    /** Which layer of the block: the bottom tray, or the top tray at 12/16. */
+    /** Which layer of the block: the bottom tray, or the top tray at 8/16. */
     public enum Slot { BOTTOM, TOP }
 
     public static final EnumProperty<TrayLayer> BOTTOM_LAYER = EnumProperty.create("bottom", TrayLayer.class);
@@ -94,7 +94,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     // All nodes are small, 1x1 pixels.
     private static final float NODE_SIZE = 1 / 16f;
     // The top layer sits this high in the block.
-    private static final double TOP_HEIGHT = 12 / 16d;
+    private static final double TOP_HEIGHT = 8 / 16d;
     // Node ids on the top layer start here, so they never clash with the bottom layer's ids.
     private static final int TOP_NODE_OFFSET = 100;
 
@@ -111,7 +111,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             if (boxes == null)
                 continue;
             VoxelShape[] low = TrayShapes.build(boxes, 0);
-            VoxelShape[] high = TrayShapes.build(boxes, 12);
+            VoxelShape[] high = TrayShapes.build(boxes, 8);
             for (int facing = 0; facing < 4; facing++) {
                 bottom[index(layer, facing)] = low[facing];
                 top[index(layer, facing)] = high[facing];
