@@ -1,13 +1,11 @@
 package com.davixium.cableworks;
 
 import com.davixium.cableworks.content.CableTrayBlock;
-import com.davixium.cableworks.content.TrayNodes;
+import com.davixium.cableworks.content.TrayItem;
 import com.davixium.cableworks.content.TrayRules;
-import com.davixium.cableworks.content.TrayShapes;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -29,26 +27,18 @@ public class CableWorks {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Straight cable tray, "cableworks:cable_tray_straight", using CEE's connector logic
-    public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_STRAIGHT = BLOCKS.registerBlock("cable_tray_straight",
-            // Last argument: placement turns and connection openings for this kind, set in TrayRules.
-            props -> new CableTrayBlock(props, TrayShapes.STRAIGHT, TrayNodes.STRAIGHT, TrayRules.STRAIGHT),
+    // The one cable tray block. Its bottom and top layers hold the trays, see CableTrayBlock.
+    public static final DeferredBlock<CableTrayBlock> CABLE_TRAY = BLOCKS.registerBlock("cable_tray",
+            CableTrayBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
-    public static final DeferredItem<BlockItem> CABLE_TRAY_STRAIGHT_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_straight", CABLE_TRAY_STRAIGHT);
 
-    // Bent cable tray, "cableworks:cable_tray_bend", using CEE's connector logic
-    public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_BEND = BLOCKS.registerBlock("cable_tray_bend",
-            // Placement turns and connection openings for this kind, set in TrayRules.
-            props -> new CableTrayBlock(props, TrayShapes.BEND, TrayNodes.BEND, TrayRules.BEND),
-            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
-    public static final DeferredItem<BlockItem> CABLE_TRAY_BEND_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_bend", CABLE_TRAY_BEND);
-
-    // Tee cable tray, "cableworks:cable_tray_tee", using CEE's connector logic
-    public static final DeferredBlock<CableTrayBlock> CABLE_TRAY_TEE = BLOCKS.registerBlock("cable_tray_tee",
-            // Placement turns and connection openings for this kind, set in TrayRules.
-            props -> new CableTrayBlock(props, TrayShapes.TEE, TrayNodes.TEE, TrayRules.TEE),
-            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2.0f).noOcclusion());
-    public static final DeferredItem<BlockItem> CABLE_TRAY_TEE_ITEM = ITEMS.registerSimpleBlockItem("cable_tray_tee", CABLE_TRAY_TEE);
+    // One item per kind. They all place CABLE_TRAY, with the layer set to their kind.
+    public static final DeferredItem<TrayItem> CABLE_TRAY_STRAIGHT_ITEM = ITEMS.registerItem("cable_tray_straight",
+            props -> new TrayItem(CABLE_TRAY.get(), TrayRules.Kind.STRAIGHT, props));
+    public static final DeferredItem<TrayItem> CABLE_TRAY_BEND_ITEM = ITEMS.registerItem("cable_tray_bend",
+            props -> new TrayItem(CABLE_TRAY.get(), TrayRules.Kind.BEND, props));
+    public static final DeferredItem<TrayItem> CABLE_TRAY_TEE_ITEM = ITEMS.registerItem("cable_tray_tee",
+            props -> new TrayItem(CABLE_TRAY.get(), TrayRules.Kind.TEE, props));
 
     // Own creative tab holding all the trays. The icon is the straight tray.
     public static final Supplier<CreativeModeTab> CABLE_WORKS_TAB = CREATIVE_TABS.register("cable_works", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP, 8)
