@@ -426,24 +426,10 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             TrayRules.Kind held = heldKind(player);
             if (held == null)
                 return PlacementOffset.fail();
-            CableTrayBlock block = (CableTrayBlock) state.getBlock();
-
-            // Top face of a bottom-only tray: preview the normal placement, in the block above, bottom layer, facing the player.
-            if (ray.getDirection() == Direction.UP && layerOf(state, Slot.TOP) == TrayLayer.NONE) {
-                BlockPos above = pos.above();
-                BlockState aboveState = level.getBlockState(above);
-                boolean free = aboveState.getBlock() instanceof CableTrayBlock
-                        ? layerOf(aboveState, Slot.BOTTOM) == TrayLayer.NONE
-                        : aboveState.canBeReplaced();
-                if (!free)
-                    return PlacementOffset.fail();
-                PlacementTarget above_target = new PlacementTarget(above, Slot.BOTTOM, TrayLayer.of(held), player.getDirection());
-                return PlacementOffset.success(above, bs -> block.placedState(level, above_target));
-            }
-
             PlacementTarget target = resolve(player, level, state, pos, ray, held);
             if (target == null)
                 return PlacementOffset.fail();
+            CableTrayBlock block = (CableTrayBlock) state.getBlock();
             return PlacementOffset.success(target.pos(), bs -> block.placedState(level, target));
         }
 
