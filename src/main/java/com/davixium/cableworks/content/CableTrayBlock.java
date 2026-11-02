@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -334,6 +335,17 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             case BEND -> new ItemStack(CableWorks.CABLE_TRAY_BEND_ITEM.get());
             case TEE -> new ItemStack(CableWorks.CABLE_TRAY_TEE_ITEM.get());
         };
+    }
+
+    // Middle click: give the tray of the layer the player is looking at, not the block's default item.
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        Slot slot = Slot.TOP;
+        if (target instanceof BlockHitResult hit)
+            slot = hit.getLocation().y - pos.getY() > 0.5 ? Slot.TOP : Slot.BOTTOM;
+        if (layerOf(state, slot) == TrayLayer.NONE)
+            slot = slot == Slot.TOP ? Slot.BOTTOM : Slot.TOP;
+        return stackFor(layerOf(state, slot));
     }
 
     @Override
