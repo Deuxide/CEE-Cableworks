@@ -1,6 +1,7 @@
 {
   "itemGroup.cableworks": "Cable Works",
-  "block.cableworks.cable_tray_straight": "Cable Tray (Straight)",
-  "block.cableworks.cable_tray_bend": "Cable Tray (Bend)",
-  "block.cableworks.cable_tray_tee": "Cable Tray (Tee)"
+  "block.cableworks.cable_tray": "Cable Tray",
+  "item.cableworks.cable_tray_straight": "Cable Tray (Straight)",
+  "item.cableworks.cable_tray_bend": "Cable Tray (Bend)",
+  "item.cableworks.cable_tray_tee": "Cable Tray (Tee)"
 }

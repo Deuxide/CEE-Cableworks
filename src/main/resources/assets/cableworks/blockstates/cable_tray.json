@@ -1,0 +1,238 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "bottom": "straight",
+        "bottom_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight"
+      }
+    },
+    {
+      "when": {
+        "bottom": "straight",
+        "bottom_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "bottom": "straight",
+        "bottom_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "bottom": "straight",
+        "bottom_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "bottom": "bend",
+        "bottom_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend"
+      }
+    },
+    {
+      "when": {
+        "bottom": "bend",
+        "bottom_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "bottom": "bend",
+        "bottom_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "bottom": "bend",
+        "bottom_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "bottom": "tee",
+        "bottom_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee"
+      }
+    },
+    {
+      "when": {
+        "bottom": "tee",
+        "bottom_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "bottom": "tee",
+        "bottom_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "bottom": "tee",
+        "bottom_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "top": "straight",
+        "top_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight_top"
+      }
+    },
+    {
+      "when": {
+        "top": "straight",
+        "top_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight_top",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "top": "straight",
+        "top_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight_top",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "top": "straight",
+        "top_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_straight_top",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "top": "bend",
+        "top_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend_top"
+      }
+    },
+    {
+      "when": {
+        "top": "bend",
+        "top_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend_top",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "top": "bend",
+        "top_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend_top",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "top": "bend",
+        "top_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_bend_top",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "top": "tee",
+        "top_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee_top"
+      }
+    },
+    {
+      "when": {
+        "top": "tee",
+        "top_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee_top",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "top": "tee",
+        "top_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee_top",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "top": "tee",
+        "top_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_tee_top",
+        "y": 270
+      }
+    }
+  ]
+}
