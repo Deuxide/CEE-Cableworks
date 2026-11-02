@@ -226,13 +226,14 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             TrayRules.Zone zone = zoneOf(along, across);
             TrayRules.Kind held = heldKind(player, target.kind);
             int[] rotations = TrayRules.previewFor(target.kind, held, zone);
-            int spot = TrayRules.spotFor(target.kind, zone);
-            if (rotations == null || spot < 0)
+            int[] spots = TrayRules.spotFor(target.kind, zone);
+            if (rotations == null || spots == null)
                 return PlacementOffset.fail();
 
             // The player's facing, relative to the placed tray: 0 = its north, 1 = its east, 2 = south, 3 = west.
             int playerSide = player == null ? 0 : Math.floorMod(player.getDirection().get2DDataValue() - facing.get2DDataValue(), 4);
             int rotation = rotations[playerSide];
+            int spot = spots[playerSide];
 
             BlockPos newPos = pos.relative(turnClockwise(facing, spot));
             if (!world.getBlockState(newPos).canBeReplaced())
