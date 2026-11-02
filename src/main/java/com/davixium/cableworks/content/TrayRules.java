@@ -85,41 +85,35 @@ public final class TrayRules {
         set(Kind.BEND, Kind.TEE, Zone.S, 3, 3, 3, 3);
         set(Kind.BEND, Kind.TEE, Zone.SW, 2, 2, 2, 2);
 
-        // Placed tee: the front end for N and NW, the right side for NE, E and SE, the back end for S and SW.
+        // Placed tee: the front end for N and NW, the right side for E, the back end for S and SW.
+        // NE and SE go on the right side for E/W players and the front or back end for N/S players.
         spotAll(Kind.TEE, Zone.N, 0);
-        spotAll(Kind.TEE, Zone.NE, 1);
+        spotAll(Kind.TEE, Zone.NW, 0);
+        spot(Kind.TEE, Zone.NE, 0, 1, 0, 1);
         spotAll(Kind.TEE, Zone.E, 1);
-        spotAll(Kind.TEE, Zone.SE, 1);
+        spot(Kind.TEE, Zone.SE, 2, 1, 2, 1);
         spotAll(Kind.TEE, Zone.S, 2);
         spotAll(Kind.TEE, Zone.SW, 2);
-        spotAll(Kind.TEE, Zone.NW, 0);
 
         // Placed tee, held straight.
         set(Kind.TEE, Kind.STRAIGHT, Zone.N, 0, 0, 0, 0);
-        set(Kind.TEE, Kind.STRAIGHT, Zone.NE, 1, 1, 1, 1);
         set(Kind.TEE, Kind.STRAIGHT, Zone.E, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.STRAIGHT, Zone.SE, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.STRAIGHT, Zone.S, 0, 0, 0, 0);
-        set(Kind.TEE, Kind.STRAIGHT, Zone.SW, 0, 0, 0, 0);
-        set(Kind.TEE, Kind.STRAIGHT, Zone.NW, 0, 0, 0, 0);
+        set(Kind.TEE, Kind.STRAIGHT, Zone.S, 9, 9, 9, 9);
 
         // Placed tee, held bend.
-        set(Kind.TEE, Kind.BEND, Zone.N, 0, 0, 0, 0);
-        set(Kind.TEE, Kind.BEND, Zone.NE, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.BEND, Zone.E, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.BEND, Zone.SE, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.BEND, Zone.S, 2, 2, 2, 2);
+        set(Kind.TEE, Kind.BEND, Zone.NW, 1, 1, 1, 1);
+        set(Kind.TEE, Kind.BEND, Zone.NE, 0, 2, 0, 2);
+        set(Kind.TEE, Kind.BEND, Zone.SE, 3, 1, 3, 1);
         set(Kind.TEE, Kind.BEND, Zone.SW, 2, 2, 2, 2);
-        set(Kind.TEE, Kind.BEND, Zone.NW, 0, 0, 0, 0);
 
         // Placed tee, held tee.
-        set(Kind.TEE, Kind.TEE, Zone.N, 0, 0, 0, 0);
-        set(Kind.TEE, Kind.TEE, Zone.NE, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.TEE, Zone.E, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.TEE, Zone.SE, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.TEE, Zone.S, 0, 0, 0, 0);
-        set(Kind.TEE, Kind.TEE, Zone.SW, 0, 0, 0, 0);
-        set(Kind.TEE, Kind.TEE, Zone.NW, 0, 0, 0, 0);
+        set(Kind.TEE, Kind.TEE, Zone.NW, 2, 2, 2, 2);
+        set(Kind.TEE, Kind.TEE, Zone.N, 1, 1, 1, 1);
+        set(Kind.TEE, Kind.TEE, Zone.NE, 0, 3, 0, 3);
+        set(Kind.TEE, Kind.TEE, Zone.E, 2, 2, 2, 2);
+        set(Kind.TEE, Kind.TEE, Zone.SE, 0, 1, 0, 1);
+        set(Kind.TEE, Kind.TEE, Zone.S, 3, 3, 3, 3);
+        set(Kind.TEE, Kind.TEE, Zone.SW, 2, 2, 2, 2);
     }
 
     private static void set(Kind placed, Kind held, Zone zone, int north, int east, int south, int west) {
