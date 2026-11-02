@@ -98,7 +98,7 @@ public final class TrayRules {
         // Placed tee, held straight.
         set(Kind.TEE, Kind.STRAIGHT, Zone.N, 0, 0, 0, 0);
         set(Kind.TEE, Kind.STRAIGHT, Zone.E, 1, 1, 1, 1);
-        set(Kind.TEE, Kind.STRAIGHT, Zone.S, 9, 9, 9, 9);
+        set(Kind.TEE, Kind.STRAIGHT, Zone.S, 0, 0, 0, 0);
 
         // Placed tee, held bend.
         set(Kind.TEE, Kind.BEND, Zone.NW, 1, 1, 1, 1);
