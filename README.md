@@ -42,9 +42,12 @@ These are not implemented yet.
 
 - **Create** by the Create team (simibubi and contributors).
 - **Create: Electro Energetics** by George_VI, which provides the connector logic these trays use.
-- **Claude** :3 (im too lazy to code alr)
+- **Claude** :3 I give claude pseudocode snippet for it to work with. So claude only applies my code snippet and ideas
+
+models, texture, and arts all come from me (claude only make my bad code works)
 
 ---
 ## License
 
-All Rights Reserved, unless stated otherwise. See `gradle.properties` for the mod license setting.
+This project is licensed under the Apache License 2.0.
+See [LICENSE](LICENSE) for the full license text.
