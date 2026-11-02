@@ -221,6 +221,15 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return withLayer(emptyState(), slotForClick(context), TrayLayer.STRAIGHT, context.getHorizontalDirection());
     }
 
+    // A held tray can be placed into a free layer of a tray that is already in the spot next to a normal block.
+    // The click's height picks the layer: the upper half is the top layer.
+    @Override
+    protected boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+        if (!(context.getItemInHand().getItem() instanceof TrayItem))
+            return false;
+        return layerOf(state, slotForClick(context)) == TrayLayer.NONE;
+    }
+
     @Override
     public BlockState getRotatedBlockState(BlockState originalState, Direction targetedFace) {
         return originalState
@@ -393,8 +402,8 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     /**
      * Holding a tray and aiming at a tray block places it, and shows the preview.
-     * - Top face of a tray with a free top layer, while crouching: the top layer, facing the way the player looks.
-     *   Without crouching, the click goes to a normal placement (the block above).
+     * - Top face of a tray with a free top layer: nothing, so the click is a normal placement (the block above).
+     * - A click on a normal block next to a tray fills the tray's free layer (upper half = top layer); see canBeReplaced.
      * - Anywhere else on the tray: the layer under the crosshair is the aimed layer, and the new tray goes
      *   beside it, using the TrayRules preview table for the aimed layer's kind and facing.
      */
@@ -437,12 +446,9 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             boolean hasBottom = layerOf(state, Slot.BOTTOM) != TrayLayer.NONE;
             boolean hasTop = layerOf(state, Slot.TOP) != TrayLayer.NONE;
 
-            if (hit.getDirection() == Direction.UP && !hasTop) {
-                // Stacking needs crouch. Without it the click is a normal placement, in the block above.
-                if (!player.isShiftKeyDown())
-                    return null;
-                return new PlacementTarget(pos, Slot.TOP, TrayLayer.of(held), player.getDirection());
-            }
+            // The top face of a tray with a free top layer does nothing: the click is a normal placement above it.
+            if (hit.getDirection() == Direction.UP && !hasTop)
+                return null;
 
             Vec3 local = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
             // The aimed layer: the top one when the crosshair is in the upper half, or when it's the only one.
