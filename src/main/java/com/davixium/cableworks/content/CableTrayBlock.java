@@ -446,10 +446,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             boolean hasBottom = layerOf(state, Slot.BOTTOM) != TrayLayer.NONE;
             boolean hasTop = layerOf(state, Slot.TOP) != TrayLayer.NONE;
 
-            // The top face of a tray with a free top layer does nothing: the click is a normal placement above it.
-            if (hit.getDirection() == Direction.UP && !hasTop)
-                return null;
-
+            // The top face of a bottom-only tray uses the side helper too: its horizontal position picks the side.
             Vec3 local = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
             // The aimed layer: the top one when the crosshair is in the upper half, or when it's the only one.
             Slot aimed = hasTop && (local.y > 0.5 || !hasBottom) ? Slot.TOP : Slot.BOTTOM;
