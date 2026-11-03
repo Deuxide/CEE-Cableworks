@@ -41,6 +41,8 @@ public final class AutoConnectTray {
         if (start == null)
             return;
 
+        AutoConnectTrayGuard.mark(player);
+
         // The alt-click uses up the selection. If nothing gets connected, it is put back below.
         spool.remove(CEEDataComponents.SELECTED_NODE);
         int[] made = {0};
