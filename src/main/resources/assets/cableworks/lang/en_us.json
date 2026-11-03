@@ -4,5 +4,15 @@
   "item.cableworks.cable_tray_straight": "Cable Tray (Straight)",
   "item.cableworks.cable_tray_bend": "Cable Tray (Bend)",
   "item.cableworks.cable_tray_tee": "Cable Tray (Tee)",
-  "message.cableworks.auto_connect": "Connected %s of %s cable sections, out of wire"
+  "message.cableworks.auto_connect": "Connected %s of %s cable sections, out of wire",
+  "message.cableworks.auto_connect_fail.not_tray": "Start or end is not a cable tray",
+  "message.cableworks.auto_connect_fail.layer": "Start and end are on different tray layers",
+  "message.cableworks.auto_connect_fail.no_route": "No straight or bend route to that node",
+  "message.cableworks.auto_connect_fail.no_node": "No connector on a tray along the route",
+  "message.cableworks.auto_connect_fail.no_wire": "This spool has no wire type",
+  "message.cableworks.auto_connect_fail.no_wire_left": "Out of wire",
+  "message.cableworks.auto_connect_fail.already": "Those nodes are already connected",
+  "message.cableworks.auto_connect_fail.unregistered": "A connector on the route is not registered yet",
+  "message.cableworks.auto_connect_fail.far": "That section is too long for one cable",
+  "message.cableworks.auto_connect_fail.unknown": "Could not connect the cable"
 }

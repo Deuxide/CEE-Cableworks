@@ -49,28 +49,35 @@ public final class AutoConnectTray {
         // The alt-click uses up the selection. If nothing gets connected, it is put back below.
         spool.remove(CEEDataComponents.SELECTED_NODE);
         int[] made = {0};
+        String failure = null;
         try {
-            connectChain(player, level, spool, start, end, made);
+            failure = connectChain(player, level, spool, start, end, made);
         } finally {
             if (made[0] == 0)
                 spool.set(CEEDataComponents.SELECTED_NODE, start);
             // Send the whole inventory so the client gets the selection state exactly as the server has it.
             player.containerMenu.sendAllDataToRemote();
         }
+        if (made[0] == 0) {
+            AllSoundEvents.DENY.playOnServer(level, end.sourcePos());
+            if (failure != null)
+                player.displayClientMessage(Component.translatable("message.cableworks.auto_connect_fail." + failure), true);
+        }
     }
 
-    private static void connectChain(ServerPlayer player, ServerLevel level, ItemStack spool, InWorldNode start, InWorldNode end, int[] made) {
+    // Returns why nothing could be connected, or null when at least one cable was placed.
+    private static String connectChain(ServerPlayer player, ServerLevel level, ItemStack spool, InWorldNode start, InWorldNode end, int[] made) {
         BlockPos startPos = start.sourcePos();
         BlockPos endPos = end.sourcePos();
         BlockState startState = level.getBlockState(startPos);
         BlockState endState = level.getBlockState(endPos);
         if (!(startState.getBlock() instanceof CableTrayBlock startTray) || !(endState.getBlock() instanceof CableTrayBlock))
-            { deny(level, endPos); return; }
+            return "not_tray";
 
         boolean sameTray = startPos.equals(endPos);
         CableTrayBlock.Slot slot = CableTrayBlock.slotOfNode(start.id());
         if (!sameTray && CableTrayBlock.slotOfNode(end.id()) != slot)
-            { deny(level, endPos); return; }
+            return "layer";
 
         List<InWorldNode> chain = new ArrayList<>();
         chain.add(start);
@@ -80,24 +87,24 @@ public final class AutoConnectTray {
         } else {
             List<BlockPos> route = findRoute(level, startPos, endPos, slot);
             if (route == null)
-                { deny(level, endPos); return; }
+                return "no_route";
 
             // Each tray on the route gets the node closest to the previous node, so the cable follows the bends.
             Vec3 previous = start.getPosition(level);
             if (previous == null)
-                { deny(level, endPos); return; }
+                return "no_node";
             for (int i = 1; i < route.size() - 1; i++) {
                 BlockPos pos = route.get(i);
                 BlockState state = level.getBlockState(pos);
                 if (!(state.getBlock() instanceof CableTrayBlock tray))
-                    break;
+                    return "no_route";
                 InWorldNode node = nearestNodeOnLine(level, tray, slot, pos, state, previous);
                 if (node == null)
-                    break;
+                    return "no_node";
                 chain.add(node);
                 previous = node.getPosition(level);
                 if (previous == null)
-                    break;
+                    return "no_node";
             }
             chain.add(end);
         }
@@ -105,7 +112,7 @@ public final class AutoConnectTray {
         InfrastructureSavedData sd = InfrastructureSavedData.load(level);
         WireType wire = wireTypeOf(spool);
         if (wire == null)
-            { deny(level, endPos); return; }
+            return "no_wire";
 
         // Make sure every tray on the route has its nodes registered before connecting.
         startTray.ensureNodesExist(level, startPos, startState);
@@ -116,19 +123,29 @@ public final class AutoConnectTray {
                 tray.ensureNodesExist(level, pos, state);
         }
 
-        int total = chain.size() - 1;
+        String stop = null;
         for (int i = 1; i < chain.size(); i++) {
-            if (!player.isCreative() && spool.isEmpty())
+            if (!player.isCreative() && spool.isEmpty()) {
+                stop = "no_wire_left";
                 break;
+            }
 
             InWorldNode a = chain.get(i - 1);
             InWorldNode b = chain.get(i);
-            if (a.equals(b) || sd.isConnected(a, b) || !sd.getNodes().contains(a) || !sd.getNodes().contains(b))
+            if (a.equals(b) || sd.isConnected(a, b)) {
+                stop = "already";
                 break;
+            }
+            if (!sd.getNodes().contains(a) || !sd.getNodes().contains(b)) {
+                stop = "unregistered";
+                break;
+            }
 
             double distance = Math.sqrt(a.sableSourcePos(level).distSqr(b.sableSourcePos(level)));
-            if (distance > wire.getMaxLength())
+            if (distance > wire.getMaxLength()) {
+                stop = "far";
                 break;
+            }
 
             sd.connect(a, b, wire);
             made[0]++;
@@ -141,13 +158,15 @@ public final class AutoConnectTray {
         }
 
         if (made[0] == 0)
-            { deny(level, endPos); return; }
+            return stop != null ? stop : "unknown";
 
         CEEAdvancements.CONNECT_WIRES.awardTo(player);
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, endPos);
 
+        int total = chain.size() - 1;
         if (made[0] < total)
             player.displayClientMessage(Component.translatable("message.cableworks.auto_connect", made[0], total), true);
+        return null;
     }
 
     // The shortest route of straight and bend trays from one tray to another, following their openings. Tees stop it.
@@ -230,7 +249,4 @@ public final class AutoConnectTray {
         return null;
     }
 
-    private static void deny(ServerLevel level, BlockPos pos) {
-        AllSoundEvents.DENY.playOnServer(level, pos);
-    }
 }
