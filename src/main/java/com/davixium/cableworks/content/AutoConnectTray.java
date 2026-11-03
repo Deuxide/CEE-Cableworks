@@ -37,6 +37,19 @@ public final class AutoConnectTray {
         if (start == null)
             return;
 
+        // The alt-click uses up the selection. If nothing gets connected, it is put back below.
+        spool.remove(CEEDataComponents.SELECTED_NODE);
+        int[] made = {0};
+        try {
+            connectChain(player, level, spool, start, end, made);
+        } finally {
+            if (made[0] == 0)
+                spool.set(CEEDataComponents.SELECTED_NODE, start);
+            player.containerMenu.broadcastChanges();
+        }
+    }
+
+    private static void connectChain(ServerPlayer player, ServerLevel level, ItemStack spool, InWorldNode start, InWorldNode end, int[] made) {
         BlockPos startPos = start.sourcePos();
         BlockPos endPos = end.sourcePos();
         BlockState startState = level.getBlockState(startPos);
@@ -104,7 +117,6 @@ public final class AutoConnectTray {
         }
 
         int total = chain.size() - 1;
-        int made = 0;
         for (int i = 1; i < chain.size(); i++) {
             if (!player.isCreative() && spool.isEmpty())
                 break;
@@ -119,7 +131,7 @@ public final class AutoConnectTray {
                 break;
 
             sd.connect(a, b, wire);
-            made++;
+            made[0]++;
 
             if (!player.isCreative()) {
                 spool.shrink(1);
@@ -128,17 +140,14 @@ public final class AutoConnectTray {
             }
         }
 
-        if (made == 0)
+        if (made[0] == 0)
             { deny(level, endPos); return; }
 
-        // Clear the selection and push it to the client now, so the spool doesn't stay selected on either side.
-        spool.remove(CEEDataComponents.SELECTED_NODE);
-        player.containerMenu.broadcastChanges();
         CEEAdvancements.CONNECT_WIRES.awardTo(player);
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, endPos);
 
-        if (made < total)
-            player.displayClientMessage(Component.translatable("message.cableworks.auto_connect", made, total), true);
+        if (made[0] < total)
+            player.displayClientMessage(Component.translatable("message.cableworks.auto_connect", made[0], total), true);
     }
 
     // The node of this tray in the slot closest to the target point in the world.
