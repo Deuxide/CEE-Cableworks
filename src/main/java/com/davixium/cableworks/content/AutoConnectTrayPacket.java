@@ -21,12 +21,31 @@ import net.minecraft.world.phys.Vec3;
  * Alt key, so the client sends this instead of the normal click.
  */
 public record AutoConnectTrayPacket(BlockPos pos, Vec3 clickLocation, boolean offHand) implements ServerboundPacketPayload {
+    // Vec3 has no stream codec here, so the click position goes as three doubles.
     public static final StreamCodec<ByteBuf, AutoConnectTrayPacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, AutoConnectTrayPacket::pos,
-            Vec3.STREAM_CODEC, AutoConnectTrayPacket::clickLocation,
+            ByteBufCodecs.DOUBLE, AutoConnectTrayPacket::clickX,
+            ByteBufCodecs.DOUBLE, AutoConnectTrayPacket::clickY,
+            ByteBufCodecs.DOUBLE, AutoConnectTrayPacket::clickZ,
             ByteBufCodecs.BOOL, AutoConnectTrayPacket::offHand,
-            AutoConnectTrayPacket::new
+            AutoConnectTrayPacket::fromParts
     );
+
+    private static double clickX(AutoConnectTrayPacket p) {
+        return p.clickLocation().x;
+    }
+
+    private static double clickY(AutoConnectTrayPacket p) {
+        return p.clickLocation().y;
+    }
+
+    private static double clickZ(AutoConnectTrayPacket p) {
+        return p.clickLocation().z;
+    }
+
+    private static AutoConnectTrayPacket fromParts(BlockPos pos, double x, double y, double z, boolean offHand) {
+        return new AutoConnectTrayPacket(pos, new Vec3(x, y, z), offHand);
+    }
 
     @Override
     public void handle(ServerPlayer player) {
