@@ -50,7 +50,8 @@ public final class AutoConnectTray {
             if (made[0] == 0)
                 spool.set(CEEDataComponents.SELECTED_NODE, start);
             LOGGER.info("[AutoConnect] server: made={} selectedAfter={} count={}", made[0], spool.has(CEEDataComponents.SELECTED_NODE), spool.getCount());
-            player.containerMenu.broadcastChanges();
+            // Send the whole inventory so the client gets the selection state exactly as the server has it.
+            player.containerMenu.sendAllDataToRemote();
         }
     }
 

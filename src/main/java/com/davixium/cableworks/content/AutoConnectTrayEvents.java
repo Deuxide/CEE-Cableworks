@@ -38,6 +38,8 @@ public final class AutoConnectTrayEvents {
             return;
 
         LOGGER.info("[AutoConnect] client: alt-click sent at {} offHand={}", event.getPos(), event.getHand() == InteractionHand.OFF_HAND);
+        // The selection is used up by this click, so drop it here too. The server pushes it back if nothing connects.
+        spool.remove(CEEDataComponents.SELECTED_NODE);
         CatnipServices.NETWORK.sendToServer(new AutoConnectTrayPacket(
                 event.getPos(),
                 event.getHitVec().getLocation(),
