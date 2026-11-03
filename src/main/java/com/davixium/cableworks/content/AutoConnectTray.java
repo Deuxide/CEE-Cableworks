@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,10 @@ public final class AutoConnectTray {
             int along = axis == Direction.Axis.X ? dx : dz;
             Direction step = Direction.fromAxisAndDirection(axis, along > 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE);
             int steps = Math.abs(along);
-            int lane = CableTrayBlock.indexOfNode(start.id());
+            Vec3 startWorld = start.getPosition(level);
+            if (startWorld == null)
+                return;
+            Vec3 stepVec = new Vec3(step.getStepX(), 0, step.getStepZ());
 
             BlockPos cursor = startPos;
             for (int i = 1; i <= steps; i++) {
@@ -71,8 +75,16 @@ public final class AutoConnectTray {
                 if (!(nextState.getBlock() instanceof CableTrayBlock nextTray) || !CableTrayBlock.isStraightAlong(nextState, slot, axis))
                     break;
 
-                // The last section lands on the clicked node, the ones before it on the start's lane.
-                chain.add(i == steps ? end : new InWorldNode(CableTrayBlock.nodeId(slot, lane), next));
+                // The last section lands on the clicked node. The ones before it are the node on this tray closest to the
+                // start node's lane, so the cable stays on one lane even when a tray faces the other way.
+                if (i == steps) {
+                    chain.add(end);
+                } else {
+                    InWorldNode lane = nearestNodeOnLine(level, nextTray, slot, next, nextState, startWorld.add(stepVec.scale(i)));
+                    if (lane == null)
+                        break;
+                    chain.add(lane);
+                }
                 cursor = next;
             }
         }
@@ -125,6 +137,26 @@ public final class AutoConnectTray {
 
         if (made < total)
             player.displayClientMessage(Component.translatable("message.cableworks.auto_connect", made, total), true);
+    }
+
+    // The node of this tray in the slot closest to the target point in the world.
+    private static InWorldNode nearestNodeOnLine(ServerLevel level, CableTrayBlock tray, CableTrayBlock.Slot slot, BlockPos pos, BlockState state, Vec3 target) {
+        InWorldNode best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (int id : tray.getNodePositions(level, pos, state).keySet()) {
+            if (CableTrayBlock.slotOfNode(id) != slot)
+                continue;
+            InWorldNode node = new InWorldNode(id, pos);
+            Vec3 at = node.getPosition(level);
+            if (at == null)
+                continue;
+            double distance = at.distanceToSqr(target);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = node;
+            }
+        }
+        return best;
     }
 
     // The wire type whose spool is the held item, or null when it is not a known spool.
