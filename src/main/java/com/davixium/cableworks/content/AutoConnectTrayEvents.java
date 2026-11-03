@@ -12,6 +12,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 /**
  * Client side: holding Alt while clicking a cable tray with a wire spool that has a selected node sends the auto-connect
@@ -19,6 +21,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  */
 @EventBusSubscriber(modid = CableWorks.MODID, value = Dist.CLIENT)
 public final class AutoConnectTrayEvents {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private AutoConnectTrayEvents() {
     }
 
@@ -33,6 +37,7 @@ public final class AutoConnectTrayEvents {
         if (!(spool.getItem() instanceof WireSpoolItem) || !spool.has(CEEDataComponents.SELECTED_NODE))
             return;
 
+        LOGGER.info("[AutoConnect] client: alt-click sent at {} offHand={}", event.getPos(), event.getHand() == InteractionHand.OFF_HAND);
         CatnipServices.NETWORK.sendToServer(new AutoConnectTrayPacket(
                 event.getPos(),
                 event.getHitVec().getLocation(),
