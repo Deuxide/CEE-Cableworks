@@ -3,18 +3,14 @@ package com.davixium.cableworks.content;
 import com.davixium.cableworks.CableWorks;
 import com.george_vi.electroenergetics.CEEDataComponents;
 import com.george_vi.electroenergetics.content.wire_spool.WireSpoolItem;
-import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
@@ -25,24 +21,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 public final class AutoConnectTrayEvents {
 
     private AutoConnectTrayEvents() {
-    }
-
-    // Shows a hint while the held spool has a selected node on a cable tray.
-    @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null || mc.gui == null)
-            return;
-
-        ItemStack spool = mc.player.getMainHandItem();
-        if (!(spool.getItem() instanceof WireSpoolItem))
-            return;
-
-        InWorldNode selected = spool.get(CEEDataComponents.SELECTED_NODE);
-        if (selected == null || !(mc.level.getBlockState(selected.sourcePos()).getBlock() instanceof CableTrayBlock))
-            return;
-
-        mc.gui.setOverlayMessage(Component.translatable("message.cableworks.auto_connect_hint"), false);
     }
 
     @SubscribeEvent
