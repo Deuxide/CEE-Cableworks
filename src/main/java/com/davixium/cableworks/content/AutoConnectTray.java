@@ -131,7 +131,9 @@ public final class AutoConnectTray {
         if (made == 0)
             { deny(level, endPos); return; }
 
+        // Clear the selection and push it to the client now, so the spool doesn't stay selected on either side.
         spool.remove(CEEDataComponents.SELECTED_NODE);
+        player.containerMenu.broadcastChanges();
         CEEAdvancements.CONNECT_WIRES.awardTo(player);
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, endPos);
 
