@@ -58,5 +58,6 @@ public class CableWorks {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_TABS.register(modEventBus);
+        CableWorksPackets.register();
     }
 }

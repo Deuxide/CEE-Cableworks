@@ -373,8 +373,23 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return nodePosition(state, slot, index);
     }
 
-    private static int nodeId(Slot slot, int index) {
+    public static int nodeId(Slot slot, int index) {
         return slot == Slot.TOP ? TOP_NODE_OFFSET + index : index;
+    }
+
+    /** The slot a node id belongs to. */
+    public static Slot slotOfNode(int nodeId) {
+        return nodeId >= TOP_NODE_OFFSET ? Slot.TOP : Slot.BOTTOM;
+    }
+
+    /** The index of a node id within its slot. */
+    public static int indexOfNode(int nodeId) {
+        return nodeId >= TOP_NODE_OFFSET ? nodeId - TOP_NODE_OFFSET : nodeId;
+    }
+
+    /** True if this state's layer in the slot is a straight tray running along the axis. */
+    public static boolean isStraightAlong(BlockState state, Slot slot, Direction.Axis axis) {
+        return layerOf(state, slot) == TrayLayer.STRAIGHT && facingOf(state, slot).getAxis() == axis;
     }
 
     private static Vec3 nodePosition(BlockState state, Slot slot, int index) {
