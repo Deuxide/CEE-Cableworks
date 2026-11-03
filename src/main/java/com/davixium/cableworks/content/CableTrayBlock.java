@@ -176,11 +176,11 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return slot == Slot.BOTTOM ? BOTTOM_FACING : TOP_FACING;
     }
 
-    private static TrayLayer layerOf(BlockState state, Slot slot) {
+    public static TrayLayer layerOf(BlockState state, Slot slot) {
         return state.getValue(layerProperty(slot));
     }
 
-    private static Direction facingOf(BlockState state, Slot slot) {
+    public static Direction facingOf(BlockState state, Slot slot) {
         return state.getValue(facingProperty(slot));
     }
 
@@ -373,9 +373,20 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return nodePosition(state, slot, index);
     }
 
-    private static int nodeId(Slot slot, int index) {
+    public static int nodeId(Slot slot, int index) {
         return slot == Slot.TOP ? TOP_NODE_OFFSET + index : index;
     }
+
+    /** The slot a node id belongs to. */
+    public static Slot slotOfNode(int nodeId) {
+        return nodeId >= TOP_NODE_OFFSET ? Slot.TOP : Slot.BOTTOM;
+    }
+
+    /** The index of a node id within its slot. */
+    public static int indexOfNode(int nodeId) {
+        return nodeId >= TOP_NODE_OFFSET ? nodeId - TOP_NODE_OFFSET : nodeId;
+    }
+
 
     private static Vec3 nodePosition(BlockState state, Slot slot, int index) {
         Vec3 p = rotateNode(nodesOf(layerOf(state, slot))[index], facingOf(state, slot));
