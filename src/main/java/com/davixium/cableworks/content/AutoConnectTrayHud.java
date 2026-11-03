@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.gui.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
 /**
  * Hint above the hotbar while the held spool has a selected node on a cable tray. The word "Alt" is 60% opaque, and fully
