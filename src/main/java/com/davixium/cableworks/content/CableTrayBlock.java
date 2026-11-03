@@ -176,11 +176,11 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return slot == Slot.BOTTOM ? BOTTOM_FACING : TOP_FACING;
     }
 
-    private static TrayLayer layerOf(BlockState state, Slot slot) {
+    public static TrayLayer layerOf(BlockState state, Slot slot) {
         return state.getValue(layerProperty(slot));
     }
 
-    private static Direction facingOf(BlockState state, Slot slot) {
+    public static Direction facingOf(BlockState state, Slot slot) {
         return state.getValue(facingProperty(slot));
     }
 
@@ -387,10 +387,6 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
         return nodeId >= TOP_NODE_OFFSET ? nodeId - TOP_NODE_OFFSET : nodeId;
     }
 
-    /** True if this state's layer in the slot is a straight tray running along the axis. */
-    public static boolean isStraightAlong(BlockState state, Slot slot, Direction.Axis axis) {
-        return layerOf(state, slot) == TrayLayer.STRAIGHT && facingOf(state, slot).getAxis() == axis;
-    }
 
     private static Vec3 nodePosition(BlockState state, Slot slot, int index) {
         Vec3 p = rotateNode(nodesOf(layerOf(state, slot))[index], facingOf(state, slot));

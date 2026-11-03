@@ -18,17 +18,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Alt-click with a wire spool on a straight cable tray. The clicked node is the end, the spool's selected node is the start.
+ * Alt-click with a wire spool on a cable tray. The clicked node is the end, the spool's selected node is the start.
  * <p>
- * Every straight tray between them along the line gets one cable: the cable runs from the start node, through the same
- * node lane on each tray, to the end node. It stops at the first block that is not a straight tray along the line, at a
- * gap, or when the spool runs out. Each cable uses one spool unit.
+ * The route follows the trays' openings through straight and bend trays, turning at bends. Tees stop it. Every tray on the
+ * route gets one cable section: the cable runs from the start node, through the node closest to it on each tray, to the end
+ * node. It stops at a gap, when the spool runs out, or when a cable can't be placed. Each cable uses one spool unit.
  */
 public final class AutoConnectTray {
+    // Longest route, in tray blocks, that auto-connect will follow.
+    private static final int MAX_ROUTE_TRAYS = 128;
 
     private AutoConnectTray() {
     }
@@ -61,12 +67,10 @@ public final class AutoConnectTray {
         if (!(startState.getBlock() instanceof CableTrayBlock startTray) || !(endState.getBlock() instanceof CableTrayBlock))
             { deny(level, endPos); return; }
 
-        int dx = endPos.getX() - startPos.getX();
-        int dz = endPos.getZ() - startPos.getZ();
-        boolean sameTray = dx == 0 && dz == 0;
-        boolean onLine = endPos.getY() == startPos.getY() && (dx == 0) != (dz == 0);
+        boolean sameTray = startPos.equals(endPos);
         CableTrayBlock.Slot slot = CableTrayBlock.slotOfNode(start.id());
-        Direction.Axis axis = dx != 0 ? Direction.Axis.X : Direction.Axis.Z;
+        if (!sameTray && CableTrayBlock.slotOfNode(end.id()) != slot)
+            { deny(level, endPos); return; }
 
         List<InWorldNode> chain = new ArrayList<>();
         chain.add(start);
@@ -74,36 +78,28 @@ public final class AutoConnectTray {
         if (sameTray) {
             chain.add(end);
         } else {
-            if (!onLine || CableTrayBlock.slotOfNode(end.id()) != slot || !CableTrayBlock.isStraightAlong(startState, slot, axis))
+            List<BlockPos> route = findRoute(level, startPos, endPos, slot);
+            if (route == null)
                 { deny(level, endPos); return; }
 
-            int along = axis == Direction.Axis.X ? dx : dz;
-            Direction step = Direction.fromAxisAndDirection(axis, along > 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE);
-            int steps = Math.abs(along);
-            Vec3 startWorld = start.getPosition(level);
-            if (startWorld == null)
-                return;
-            Vec3 stepVec = new Vec3(step.getStepX(), 0, step.getStepZ());
-
-            BlockPos cursor = startPos;
-            for (int i = 1; i <= steps; i++) {
-                BlockPos next = cursor.relative(step);
-                BlockState nextState = level.getBlockState(next);
-                if (!(nextState.getBlock() instanceof CableTrayBlock nextTray) || !CableTrayBlock.isStraightAlong(nextState, slot, axis))
+            // Each tray on the route gets the node closest to the previous node, so the cable follows the bends.
+            Vec3 previous = start.getPosition(level);
+            if (previous == null)
+                { deny(level, endPos); return; }
+            for (int i = 1; i < route.size() - 1; i++) {
+                BlockPos pos = route.get(i);
+                BlockState state = level.getBlockState(pos);
+                if (!(state.getBlock() instanceof CableTrayBlock tray))
                     break;
-
-                // The last section lands on the clicked node. The ones before it are the node on this tray closest to the
-                // start node's lane, so the cable stays on one lane even when a tray faces the other way.
-                if (i == steps) {
-                    chain.add(end);
-                } else {
-                    InWorldNode lane = nearestNodeOnLine(level, nextTray, slot, next, nextState, startWorld.add(stepVec.scale(i)));
-                    if (lane == null)
-                        break;
-                    chain.add(lane);
-                }
-                cursor = next;
+                InWorldNode node = nearestNodeOnLine(level, tray, slot, pos, state, previous);
+                if (node == null)
+                    break;
+                chain.add(node);
+                previous = node.getPosition(level);
+                if (previous == null)
+                    break;
             }
+            chain.add(end);
         }
 
         InfrastructureSavedData sd = InfrastructureSavedData.load(level);
@@ -152,6 +148,58 @@ public final class AutoConnectTray {
 
         if (made[0] < total)
             player.displayClientMessage(Component.translatable("message.cableworks.auto_connect", made[0], total), true);
+    }
+
+    // The shortest route of straight and bend trays from one tray to another, following their openings. Tees stop it.
+    // Returns the positions from start to end, or null when there is no route.
+    private static List<BlockPos> findRoute(ServerLevel level, BlockPos from, BlockPos to, CableTrayBlock.Slot slot) {
+        Map<BlockPos, BlockPos> parent = new HashMap<>();
+        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+        parent.put(from, from);
+        queue.add(from);
+        while (!queue.isEmpty() && !parent.containsKey(to)) {
+            BlockPos pos = queue.poll();
+            if (parent.size() > MAX_ROUTE_TRAYS)
+                break;
+            for (Direction side : openings(level.getBlockState(pos), slot)) {
+                BlockPos next = pos.relative(side);
+                if (parent.containsKey(next))
+                    continue;
+                if (!openings(level.getBlockState(next), slot).contains(side.getOpposite()))
+                    continue;
+                parent.put(next, pos);
+                queue.add(next);
+            }
+        }
+        if (!parent.containsKey(to))
+            return null;
+
+        LinkedList<BlockPos> route = new LinkedList<>();
+        for (BlockPos pos = to; !pos.equals(from); pos = parent.get(pos))
+            route.addFirst(pos);
+        route.addFirst(from);
+        return route;
+    }
+
+    // The sides a tray opens to, in the world. Straight trays open along their facing. A north-facing bend opens south and
+    // east, turned by the facing. Tees and empty blocks open to nothing here.
+    private static List<Direction> openings(BlockState state, CableTrayBlock.Slot slot) {
+        if (!(state.getBlock() instanceof CableTrayBlock))
+            return List.of();
+        Direction facing = CableTrayBlock.facingOf(state, slot);
+        return switch (CableTrayBlock.layerOf(state, slot)) {
+            case STRAIGHT -> List.of(facing, facing.getOpposite());
+            case BEND -> List.of(turn(Direction.SOUTH, facing), turn(Direction.EAST, facing));
+            default -> List.of();
+        };
+    }
+
+    // Turns a direction clockwise as many quarter turns as the facing is from north.
+    private static Direction turn(Direction direction, Direction facing) {
+        Direction result = direction;
+        for (int i = 0; i < facing.get2DDataValue(); i++)
+            result = result.getClockWise();
+        return result;
     }
 
     // The node of this tray in the slot closest to the target point in the world.
