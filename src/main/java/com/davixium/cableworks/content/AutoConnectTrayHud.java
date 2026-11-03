@@ -53,6 +53,9 @@ public final class AutoConnectTrayHud {
             return;
         float alpha = fade;
 
+        if (Math.round(((WHITE_FAINT >>> 24) & 0xFF) * alpha) < 4)
+            return;
+
         Font font = mc.font;
         String before = "Hold ";
         String key = "Alt";
