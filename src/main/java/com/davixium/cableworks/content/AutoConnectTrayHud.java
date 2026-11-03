@@ -24,11 +24,13 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 public final class AutoConnectTrayHud {
     private static final int BLUE = 0xFF7FD4FF;
     private static final int WHITE = 0xFFFFFFFF;
-    private static final int WHITE_FAINT = 0x99FFFFFF;
+    private static final int WHITE_FAINT = 0x73FFFFFF;
     // Ticks for a full fade in or out.
     private static final float FADE_TICKS = 10f;
 
     private static float fade = 0f;
+    // Set on the frame the fade-out ends, so the hint shows once at full opacity before it is gone.
+    private static boolean flash = false;
 
     private AutoConnectTrayHud() {
     }
@@ -42,11 +44,25 @@ public final class AutoConnectTrayHud {
         Minecraft mc = Minecraft.getInstance();
         boolean show = shouldShow(mc);
 
-        // Move the fade toward the target, so the hint fades out instead of cutting off.
+        // No fade in: the hint is fully there as soon as it should show. Only fade out.
         float step = Math.min(deltaTracker.getRealtimeDeltaTicks(), 5f) / FADE_TICKS;
-        fade = Math.max(0f, Math.min(1f, fade + (show ? step : -step)));
-        if (fade <= 0f)
-            return;
+        if (show) {
+            fade = 1f;
+            flash = false;
+        } else if (fade > 0f) {
+            fade = Math.max(0f, fade - step);
+            if (fade <= 0f)
+                flash = true;
+        }
+
+        boolean flashNow = false;
+        if (fade <= 0f) {
+            if (!flash)
+                return;
+            flash = false;
+            flashNow = true;
+        }
+        float alpha = flashNow ? 1f : fade;
 
         Font font = mc.font;
         String before = "Hold ";
@@ -56,11 +72,12 @@ public final class AutoConnectTrayHud {
         int x = (graphics.guiWidth() - total) / 2;
         int y = graphics.guiHeight() - 59;
 
-        graphics.drawString(font, before, x, y, withFade(BLUE), true);
+        boolean fullAlt = flashNow || Screen.hasAltDown();
+        graphics.drawString(font, before, x, y, withAlpha(BLUE, alpha), true);
         x += font.width(before);
-        graphics.drawString(font, key, x, y, withFade(Screen.hasAltDown() ? WHITE : WHITE_FAINT), true);
+        graphics.drawString(font, key, x, y, withAlpha(fullAlt ? WHITE : WHITE_FAINT, alpha), true);
         x += font.width(key);
-        graphics.drawString(font, after, x, y, withFade(BLUE), true);
+        graphics.drawString(font, after, x, y, withAlpha(BLUE, alpha), true);
     }
 
     private static boolean shouldShow(Minecraft mc) {
@@ -75,9 +92,9 @@ public final class AutoConnectTrayHud {
         return selected != null && mc.level.getBlockState(selected.sourcePos()).getBlock() instanceof CableTrayBlock;
     }
 
-    // Scales the colour's alpha by the current fade.
-    private static int withFade(int argb) {
-        int alpha = Math.round(((argb >>> 24) & 0xFF) * fade);
+    // Scales the colour's alpha by the given amount.
+    private static int withAlpha(int argb, float amount) {
+        int alpha = Math.round(((argb >>> 24) & 0xFF) * amount);
         return (alpha << 24) | (argb & 0xFFFFFF);
     }
 }
