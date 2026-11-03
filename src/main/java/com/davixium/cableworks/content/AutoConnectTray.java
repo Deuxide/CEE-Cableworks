@@ -17,8 +17,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,6 @@ import java.util.List;
  * gap, or when the spool runs out. Each cable uses one spool unit.
  */
 public final class AutoConnectTray {
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private AutoConnectTray() {
     }
@@ -51,7 +48,6 @@ public final class AutoConnectTray {
         } finally {
             if (made[0] == 0)
                 spool.set(CEEDataComponents.SELECTED_NODE, start);
-            LOGGER.info("[AutoConnect] server: made={} selectedAfter={} count={} sameAsHeld={} heldHasSelected={}", made[0], spool.has(CEEDataComponents.SELECTED_NODE), spool.getCount(), player.getMainHandItem() == spool, player.getMainHandItem().has(CEEDataComponents.SELECTED_NODE));
             // Send the whole inventory so the client gets the selection state exactly as the server has it.
             player.containerMenu.sendAllDataToRemote();
         }

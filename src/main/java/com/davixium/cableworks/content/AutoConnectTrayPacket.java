@@ -14,8 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -23,7 +21,6 @@ import net.minecraft.world.phys.Vec3;
  * Alt key, so the client sends this instead of the normal click.
  */
 public record AutoConnectTrayPacket(BlockPos pos, Vec3 clickLocation, boolean offHand) implements ServerboundPacketPayload {
-    private static final Logger LOGGER = LogUtils.getLogger();
     // Vec3 has no stream codec here, so the click position goes as three doubles.
     public static final StreamCodec<ByteBuf, AutoConnectTrayPacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, AutoConnectTrayPacket::pos,
@@ -53,7 +50,6 @@ public record AutoConnectTrayPacket(BlockPos pos, Vec3 clickLocation, boolean of
     @Override
     public void handle(ServerPlayer player) {
         ItemStack spool = offHand ? player.getOffhandItem() : player.getMainHandItem();
-        LOGGER.info("[AutoConnect] server: packet at {} offHand={} isSpool={} selected={}", pos, offHand, spool.getItem() instanceof WireSpoolItem, spool.has(CEEDataComponents.SELECTED_NODE));
         if (!(spool.getItem() instanceof WireSpoolItem) || !spool.has(CEEDataComponents.SELECTED_NODE))
             return;
         if (!(player.level() instanceof ServerLevel level))

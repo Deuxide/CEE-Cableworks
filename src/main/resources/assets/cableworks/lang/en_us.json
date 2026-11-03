@@ -4,5 +4,6 @@
   "item.cableworks.cable_tray_straight": "Cable Tray (Straight)",
   "item.cableworks.cable_tray_bend": "Cable Tray (Bend)",
   "item.cableworks.cable_tray_tee": "Cable Tray (Tee)",
-  "message.cableworks.auto_connect": "Connected %s of %s cable sections, out of wire"
+  "message.cableworks.auto_connect": "Connected %s of %s cable sections, out of wire",
+  "message.cableworks.auto_connect_hint": "Hold Alt and click another node on the tray line to auto-connect the cable"
 }
