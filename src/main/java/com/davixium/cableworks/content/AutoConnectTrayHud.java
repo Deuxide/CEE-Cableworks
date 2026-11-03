@@ -29,8 +29,6 @@ public final class AutoConnectTrayHud {
     private static final float FADE_TICKS = 10f;
 
     private static float fade = 0f;
-    // Set on the frame the fade-out ends, so the hint shows once at full opacity before it is gone.
-    private static boolean flash = false;
 
     private AutoConnectTrayHud() {
     }
@@ -46,23 +44,14 @@ public final class AutoConnectTrayHud {
 
         // No fade in: the hint is fully there as soon as it should show. Only fade out.
         float step = Math.min(deltaTracker.getRealtimeDeltaTicks(), 5f) / FADE_TICKS;
-        if (show) {
+        if (show)
             fade = 1f;
-            flash = false;
-        } else if (fade > 0f) {
+        else if (fade > 0f)
             fade = Math.max(0f, fade - step);
-            if (fade <= 0f)
-                flash = true;
-        }
 
-        boolean flashNow = false;
-        if (fade <= 0f) {
-            if (!flash)
-                return;
-            flash = false;
-            flashNow = true;
-        }
-        float alpha = flashNow ? 1f : fade;
+        if (fade <= 0f)
+            return;
+        float alpha = fade;
 
         Font font = mc.font;
         String before = "Hold ";
@@ -72,7 +61,7 @@ public final class AutoConnectTrayHud {
         int x = (graphics.guiWidth() - total) / 2;
         int y = graphics.guiHeight() - 59;
 
-        boolean fullAlt = flashNow || Screen.hasAltDown();
+        boolean fullAlt = Screen.hasAltDown();
         graphics.drawString(font, before, x, y, withAlpha(BLUE, alpha), true);
         x += font.width(before);
         graphics.drawString(font, key, x, y, withAlpha(fullAlt ? WHITE : WHITE_FAINT, alpha), true);
