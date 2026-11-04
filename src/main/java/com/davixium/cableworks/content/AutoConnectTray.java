@@ -90,21 +90,23 @@ public final class AutoConnectTray {
                 return "no_route";
 
             // Each tray on the route gets the node closest to the previous node, so the cable follows the bends.
-            InWorldNode prevNode = start;
-            BlockPos prevPos = startPos;
-            BlockState prevState = startState;
+            Vec3 previous = start.getPosition(level);
+            if (previous == null)
+                return "no_node";
+            int lane = CableTrayBlock.indexOfNode(start.id());
             for (int i = 1; i < route.size() - 1; i++) {
                 BlockPos pos = route.get(i);
                 BlockState state = level.getBlockState(pos);
                 if (!(state.getBlock() instanceof CableTrayBlock tray))
                     return "no_route";
-                InWorldNode node = matchNode(level, tray, slot, prevPos, prevState, prevNode, pos, state);
+                InWorldNode node = continueLane(level, tray, slot, pos, state, lane, previous);
                 if (node == null)
                     return "no_node";
                 chain.add(node);
-                prevNode = node;
-                prevPos = pos;
-                prevState = state;
+                lane = CableTrayBlock.indexOfNode(node.id());
+                previous = node.getPosition(level);
+                if (previous == null)
+                    return "no_node";
             }
             chain.add(end);
         }
@@ -219,64 +221,6 @@ public final class AutoConnectTray {
         for (int i = 0; i < facing.get2DDataValue(); i++)
             result = result.getClockWise();
         return result;
-    }
-
-    // The node on this tray that the previous node's lane continues into. Straight to straight keeps the lane index. Where a
-    // bend is involved, lanes are matched by their distance from the bend's turning centre, so each lane keeps its radius.
-    private static InWorldNode matchNode(ServerLevel level, CableTrayBlock tray, CableTrayBlock.Slot slot, BlockPos prevPos, BlockState prevState, InWorldNode prevNode, BlockPos pos, BlockState state) {
-        boolean bendHere = isBend(state, slot);
-        boolean bendBefore = isBend(prevState, slot);
-        Vec3 prevAt = prevNode.getPosition(level);
-        if (prevAt == null)
-            return null;
-
-        if (!bendHere && !bendBefore)
-            return continueLane(level, tray, slot, pos, state, CableTrayBlock.indexOfNode(prevNode.id()), prevAt);
-
-        BlockPos bendPos = bendHere ? pos : prevPos;
-        BlockState bendState = bendHere ? state : prevState;
-        Vec3 centre = turningCentre(bendPos, openings(bendState, slot));
-
-        List<Integer> prevLanes = lanesByDistance(level, prevPos, prevState, slot, centre);
-        List<Integer> lanes = lanesByDistance(level, pos, state, slot, centre);
-        int rank = prevLanes.indexOf(prevNode.id());
-        if (rank < 0 || lanes.isEmpty())
-            return null;
-        return new InWorldNode(lanes.get(Math.min(rank, lanes.size() - 1)), pos);
-    }
-
-    private static boolean isBend(BlockState state, CableTrayBlock.Slot slot) {
-        return state.getBlock() instanceof CableTrayBlock && CableTrayBlock.layerOf(state, slot) == CableTrayBlock.TrayLayer.BEND;
-    }
-
-    // The centre of the turning circle: the block corner shared by the bend's two openings.
-    private static Vec3 turningCentre(BlockPos pos, List<Direction> openings) {
-        double x = pos.getX() + 0.5;
-        double z = pos.getZ() + 0.5;
-        for (Direction side : openings) {
-            x += 0.5 * side.getStepX();
-            z += 0.5 * side.getStepZ();
-        }
-        return new Vec3(x, pos.getY(), z);
-    }
-
-    // The node ids of this tray in the slot, nearest the centre first (distance measured across the world, ignoring height).
-    private static List<Integer> lanesByDistance(ServerLevel level, BlockPos pos, BlockState state, CableTrayBlock.Slot slot, Vec3 centre) {
-        List<Integer> ids = new ArrayList<>();
-        Map<Integer, Double> distance = new HashMap<>();
-        if (!(state.getBlock() instanceof CableTrayBlock tray))
-            return ids;
-        for (int id : tray.getNodePositions(level, pos, state).keySet()) {
-            if (CableTrayBlock.slotOfNode(id) != slot)
-                continue;
-            Vec3 at = new InWorldNode(id, pos).getPosition(level);
-            if (at == null)
-                continue;
-            ids.add(id);
-            distance.put(id, Math.hypot(at.x - centre.x, at.z - centre.z));
-        }
-        ids.sort((a, b) -> Double.compare(distance.get(a), distance.get(b)));
-        return ids;
     }
 
     // The node on this tray that continues the lane: the same index as the previous tray's lane, or its mirror when the
