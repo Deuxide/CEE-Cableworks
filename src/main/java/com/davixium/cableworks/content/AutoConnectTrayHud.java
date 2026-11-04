@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
  * Hint above the hotbar while the held spool has a selected node on a cable tray. It fades in and out. The word "Alt" is
  * white at 60% opacity, and fully opaque while Alt is held.
  */
-@EventBusSubscriber(modid = CableWorks.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = CableWorks.MODID, value = Dist.CLIENT)
 public final class AutoConnectTrayHud {
     private static final int BLUE = 0xFF7FD4FF;
     private static final int WHITE = 0xFFFFFFFF;
