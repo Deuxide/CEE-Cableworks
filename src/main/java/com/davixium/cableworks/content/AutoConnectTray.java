@@ -208,7 +208,7 @@ public final class AutoConnectTray {
         Direction facing = CableTrayBlock.facingOf(state, slot);
         return switch (CableTrayBlock.layerOf(state, slot)) {
             case STRAIGHT -> List.of(facing, facing.getOpposite());
-            //case BEND -> List.of(turn(Direction.NORTH, facing), turn(Direction.WEST, facing));
+            case BEND -> List.of(turn(Direction.NORTH, facing), turn(Direction.WEST, facing));
             default -> List.of();
         };
     }
