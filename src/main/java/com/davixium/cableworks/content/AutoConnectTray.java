@@ -93,17 +93,20 @@ public final class AutoConnectTray {
             Vec3 previous = start.getPosition(level);
             if (previous == null)
                 return "no_node";
-            int lane = CableTrayBlock.indexOfNode(start.id());
             for (int i = 1; i < route.size() - 1; i++) {
                 BlockPos pos = route.get(i);
+                BlockPos before = route.get(i - 1);
                 BlockState state = level.getBlockState(pos);
                 if (!(state.getBlock() instanceof CableTrayBlock tray))
                     return "no_route";
-                InWorldNode node = continueLane(level, tray, slot, pos, state, lane, previous);
+                // The direction the cable travels into this tray.
+                Direction entry = Direction.fromDelta(pos.getX() - before.getX(), 0, pos.getZ() - before.getZ());
+                if (entry == null)
+                    return "no_route";
+                InWorldNode node = continueLane(level, tray, slot, pos, state, entry, previous);
                 if (node == null)
                     return "no_node";
                 chain.add(node);
-                lane = CableTrayBlock.indexOfNode(node.id());
                 previous = node.getPosition(level);
                 if (previous == null)
                     return "no_node";
@@ -223,31 +226,26 @@ public final class AutoConnectTray {
         return result;
     }
 
-    // The node on this tray that continues the lane: the same index as the previous tray's lane, or its mirror when the
-    // tray's node order is reversed, whichever of the two is closer to the previous node in the world.
-    private static InWorldNode continueLane(ServerLevel level, CableTrayBlock tray, CableTrayBlock.Slot slot, BlockPos pos, BlockState state, int lane, Vec3 previous) {
-        List<Integer> ids = new ArrayList<>();
-        for (int id : tray.getNodePositions(level, pos, state).keySet())
-            if (CableTrayBlock.slotOfNode(id) == slot)
-                ids.add(id);
-        if (ids.isEmpty())
-            return null;
-
-        int count = ids.size();
-        int same = Math.min(lane, count - 1);
-        int mirror = count - 1 - same;
+    // The node on this tray that the cable meets. Going north or south, lanes are told apart by their X; going east or west,
+    // by their Z. Bend nodes step in both X and Z, so the lane keeps its position across the corner.
+    private static InWorldNode continueLane(ServerLevel level, CableTrayBlock tray, CableTrayBlock.Slot slot, BlockPos pos, BlockState state, Direction entry, Vec3 previous) {
+        boolean compareX = entry.getAxis() == Direction.Axis.Z;
 
         InWorldNode best = null;
         double bestDistance = Double.MAX_VALUE;
-        for (int index : new int[] {same, mirror}) {
-            InWorldNode node = new InWorldNode(CableTrayBlock.nodeId(slot, index), pos);
-            Vec3 at = node.getPosition(level);
+        for (int id : tray.getNodePositions(level, pos, state).keySet()) {
+            if (CableTrayBlock.slotOfNode(id) != slot)
+                continue;
+
+            InWorldNode candidate = new InWorldNode(id, pos);
+            Vec3 at = candidate.getPosition(level);
             if (at == null)
                 continue;
-            double distance = at.distanceToSqr(previous);
+
+            double distance = compareX ? Math.abs(at.x - previous.x) : Math.abs(at.z - previous.z);
             if (distance < bestDistance) {
                 bestDistance = distance;
-                best = node;
+                best = candidate;
             }
         }
         return best;
