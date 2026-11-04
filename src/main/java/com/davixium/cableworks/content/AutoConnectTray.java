@@ -200,8 +200,8 @@ public final class AutoConnectTray {
         return route;
     }
 
-    // The sides a tray opens to, in the world. Straight trays open along their facing. A north-facing bend opens south and
-    // east, turned by the facing. Tees and empty blocks open to nothing here.
+    // The sides a tray opens to, in the world. Straight trays open along their facing. A north-facing bend opens north and
+    // west, turned by the facing. Tees and empty blocks open to nothing here.
     private static List<Direction> openings(BlockState state, CableTrayBlock.Slot slot) {
         if (!(state.getBlock() instanceof CableTrayBlock))
             return List.of();
