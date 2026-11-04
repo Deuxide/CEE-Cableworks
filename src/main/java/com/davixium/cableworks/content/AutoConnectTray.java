@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -118,6 +119,9 @@ public final class AutoConnectTray {
         WireType wire = wireTypeOf(spool);
         if (wire == null)
             return "no_wire";
+        // A dye in the offhand colours the wire, as it does for the normal click.
+        if (wire instanceof WireType.Dyeable dyeable && player.getOffhandItem().getItem() instanceof DyeItem dye)
+            wire = dyeable.getDyed(dye.getDyeColor());
 
         // Make sure every tray on the route has its nodes registered before connecting.
         startTray.ensureNodesExist(level, startPos, startState);
