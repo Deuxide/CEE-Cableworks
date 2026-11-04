@@ -95,10 +95,15 @@ public final class AutoConnectTray {
                 return "no_node";
             for (int i = 1; i < route.size() - 1; i++) {
                 BlockPos pos = route.get(i);
+                BlockPos before = route.get(i - 1);
                 BlockState state = level.getBlockState(pos);
                 if (!(state.getBlock() instanceof CableTrayBlock tray))
                     return "no_route";
-                InWorldNode node = nearestNodeOnLine(level, tray, slot, pos, state, previous);
+                // The direction the cable travels into this tray.
+                Direction entry = Direction.fromDelta(pos.getX() - before.getX(), 0, pos.getZ() - before.getZ());
+                if (entry == null)
+                    return "no_route";
+                InWorldNode node = continueLane(level, tray, slot, pos, state, entry, previous);
                 if (node == null)
                     return "no_node";
                 chain.add(node);
@@ -200,15 +205,15 @@ public final class AutoConnectTray {
         return route;
     }
 
-    // The sides a tray opens to, in the world. Straight trays open along their facing. A north-facing bend opens south and
-    // east, turned by the facing. Tees and empty blocks open to nothing here.
+    // The sides a tray opens to, in the world. Straight trays open along their facing. A north-facing bend opens north and
+    // west, turned by the facing. Tees and empty blocks open to nothing here.
     private static List<Direction> openings(BlockState state, CableTrayBlock.Slot slot) {
         if (!(state.getBlock() instanceof CableTrayBlock))
             return List.of();
         Direction facing = CableTrayBlock.facingOf(state, slot);
         return switch (CableTrayBlock.layerOf(state, slot)) {
             case STRAIGHT -> List.of(facing, facing.getOpposite());
-            //case BEND -> List.of(turn(Direction.NORTH, facing), turn(Direction.WEST, facing));
+            case BEND -> List.of(turn(Direction.NORTH, facing), turn(Direction.WEST, facing));
             default -> List.of();
         };
     }
@@ -221,21 +226,26 @@ public final class AutoConnectTray {
         return result;
     }
 
-    // The node of this tray in the slot closest to the target point in the world.
-    private static InWorldNode nearestNodeOnLine(ServerLevel level, CableTrayBlock tray, CableTrayBlock.Slot slot, BlockPos pos, BlockState state, Vec3 target) {
+    // The node on this tray that the cable meets. Going north or south, lanes are told apart by their X; going east or west,
+    // by their Z. Bend nodes step in both X and Z, so the lane keeps its position across the corner.
+    private static InWorldNode continueLane(ServerLevel level, CableTrayBlock tray, CableTrayBlock.Slot slot, BlockPos pos, BlockState state, Direction entry, Vec3 previous) {
+        boolean compareX = entry.getAxis() == Direction.Axis.Z;
+
         InWorldNode best = null;
         double bestDistance = Double.MAX_VALUE;
         for (int id : tray.getNodePositions(level, pos, state).keySet()) {
             if (CableTrayBlock.slotOfNode(id) != slot)
                 continue;
-            InWorldNode node = new InWorldNode(id, pos);
-            Vec3 at = node.getPosition(level);
+
+            InWorldNode candidate = new InWorldNode(id, pos);
+            Vec3 at = candidate.getPosition(level);
             if (at == null)
                 continue;
-            double distance = at.distanceToSqr(target);
+
+            double distance = compareX ? Math.abs(at.x - previous.x) : Math.abs(at.z - previous.z);
             if (distance < bestDistance) {
                 bestDistance = distance;
-                best = node;
+                best = candidate;
             }
         }
         return best;
