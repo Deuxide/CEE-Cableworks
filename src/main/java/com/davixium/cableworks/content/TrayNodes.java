@@ -54,6 +54,10 @@ public final class TrayNodes {
             new Vec3(3/16d, 1.5 / 16d, 7/16d),
             new Vec3(3/16d, 1.5 / 16d, 5/16d),
 
+            // Two more nodes added in the model; positions to be set.
+            new Vec3(8/16d, 1.5 / 16d, 8/16d),
+            new Vec3(8/16d, 1.5 / 16d, 8/16d),
+
     };
 
     private TrayNodes() {
