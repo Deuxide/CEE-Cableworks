@@ -26,6 +26,13 @@ public final class TrayNodes {
             new Vec3(3/16d, 1.5 / 16d, 3/16d),
     };
 
+    // The heavy straight tray has three connector nodes, one per clamp.
+    public static final Vec3[] HEAVY_STRAIGHT = {
+            new Vec3(12/16d, 3 / 16d, 8/16d),
+            new Vec3(8/16d, 3 / 16d, 8/16d),
+            new Vec3(4/16d, 3 / 16d, 8/16d),
+    };
+
     // Placeholder positions for the tee tray, to be set by hand.
     public static final Vec3[] TEE = {
             new Vec3(13/16d, 1.5 / 16d, 13/16d),

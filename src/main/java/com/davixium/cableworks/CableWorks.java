@@ -37,6 +37,8 @@ public class CableWorks {
             props -> new TrayItem(CABLE_TRAY.get(), TrayRules.Kind.STRAIGHT, props));
     public static final DeferredItem<TrayItem> CABLE_TRAY_BEND_ITEM = ITEMS.registerItem("cable_tray_bend",
             props -> new TrayItem(CABLE_TRAY.get(), TrayRules.Kind.BEND, props));
+    public static final DeferredItem<TrayItem> CABLE_TRAY_HEAVY_STRAIGHT_ITEM = ITEMS.registerItem("cable_tray_heavy_straight",
+            props -> new TrayItem(CABLE_TRAY.get(), TrayRules.Kind.HEAVY_STRAIGHT, props));
     public static final DeferredItem<TrayItem> CABLE_TRAY_TEE_ITEM = ITEMS.registerItem("cable_tray_tee",
             props -> new TrayItem(CABLE_TRAY.get(), TrayRules.Kind.TEE, props));
 
@@ -48,6 +50,7 @@ public class CableWorks {
                 output.accept(CABLE_TRAY_STRAIGHT_ITEM.get());
                 output.accept(CABLE_TRAY_BEND_ITEM.get());
                 output.accept(CABLE_TRAY_TEE_ITEM.get());
+                output.accept(CABLE_TRAY_HEAVY_STRAIGHT_ITEM.get());
             })
             .build());
 
