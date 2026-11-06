@@ -7,7 +7,7 @@ The addon is aimed at building neat wire runs. Place the trays along a route, at
 ---
 ## Current Features
 
-- **Cable Tray (Straight)**, **Cable Tray (Bend)** and **Cable Tray (Tee)** blocks, with 3D models made in Blockbench.
+- **Auto-connect**: automatically places wires across a long chain of trays with pathfinding algs
 - All trays use CEE's connector device, so wires can be attached to them like any other connector.
 - **Wiring across a tray**: a wire can join two nodes on the same tray. Short circuits between nodes are allowed.
 - **Tray-to-tray placement**: holding a tray and aiming near an edge of an existing tray places the new tray right beside it, the same way Create's sails attach. Aiming at an end continues the run in a straight line. Aiming at a side places the new tray facing that side, so you can branch or turn a run.
@@ -32,7 +32,7 @@ Cable Works is meant to grow into a full cable-routing set. Planned additions:
 - **Ducts** for routing cables through enclosed runs.
 - **Conduits** for protected wire routing.
 - **More tray types**, such as corner, tee, cross, and vertical trays.
-- supports for other mods that adds cables
+- Supports for other mods that adds cables
 - Crafting recipes for survival
 
 These are not implemented yet.
@@ -50,4 +50,4 @@ models, texture, and arts all come from me (claude only make my bad code works)
 ## License
 
 This project is licensed under the Apache License 2.0.
-See [LICENSE](LICENSE) for the full license text.
+See [LICENSE](LICENSE.txt) for the full license text.

@@ -35,28 +35,26 @@ public final class TrayNodes {
 
     // Placeholder positions for the tee tray, to be set by hand.
     public static final Vec3[] TEE = {
-            new Vec3(13/16d, 1.5 / 16d, 13/16d),
-            new Vec3(11/16d, 1.5 / 16d, 13/16d),
-            new Vec3(9/16d, 1.5 / 16d, 13/16d),
-            new Vec3(7/16d, 1.5 / 16d, 13/16d),
-            new Vec3(5/16d, 1.5 / 16d, 13/16d),
-            new Vec3(3/16d, 1.5 / 16d, 13/16d),
+            new Vec3(13/16d, 1.5 / 16d, 15/16d),
+            new Vec3(11/16d, 1.5 / 16d, 15/16d),
+            new Vec3(9/16d, 1.5 / 16d, 15/16d),
+            new Vec3(7/16d, 1.5 / 16d, 15/16d),
+            new Vec3(5/16d, 1.5 / 16d, 15/16d),
+            new Vec3(3/16d, 1.5 / 16d, 15/16d),
 
-            new Vec3(13/16d, 1.5 / 16d, 3/16d),
-            new Vec3(11/16d, 1.5 / 16d, 3/16d),
-            new Vec3(9/16d, 1.5 / 16d, 3/16d),
-            new Vec3(7/16d, 1.5 / 16d, 3/16d),
-            new Vec3(5/16d, 1.5 / 16d, 3/16d),
-            new Vec3(3/16d, 1.5 / 16d, 3/16d),
+            new Vec3(13/16d, 1.5 / 16d, 1/16d),
+            new Vec3(11/16d, 1.5 / 16d, 1/16d),
+            new Vec3(9/16d, 1.5 / 16d, 1/16d),
+            new Vec3(7/16d, 1.5 / 16d, 1/16d),
+            new Vec3(5/16d, 1.5 / 16d, 1/16d),
+            new Vec3(3/16d, 1.5 / 16d, 1/16d),
 
-            new Vec3(3/16d, 1.5 / 16d, 11/16d),
-            new Vec3(3/16d, 1.5 / 16d, 9/16d),
-            new Vec3(3/16d, 1.5 / 16d, 7/16d),
-            new Vec3(3/16d, 1.5 / 16d, 5/16d),
-
-            // Two more nodes added in the model; positions to be set.
-            new Vec3(8/16d, 1.5 / 16d, 8/16d),
-            new Vec3(8/16d, 1.5 / 16d, 8/16d),
+            new Vec3(1/16d, 1.5 / 16d, 13/16d),
+            new Vec3(1/16d, 1.5 / 16d, 11/16d),
+            new Vec3(1/16d, 1.5 / 16d, 9/16d),
+            new Vec3(1/16d, 1.5 / 16d, 7/16d),
+            new Vec3(1/16d, 1.5 / 16d, 5/16d),
+            new Vec3(1/16d, 1.5 / 16d, 3/16d),
 
     };
 

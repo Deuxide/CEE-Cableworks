@@ -97,7 +97,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
     // All nodes are small, 1x1 pixels.
     private static final float NODE_SIZE = 1 / 16f;
     // The heavy tray's nodes are 2x2.
-    private static final float HEAVY_NODE_SIZE = 2 / 16f;
+    private static final float HEAVY_NODE_SIZE = 3 / 16f;
     // The top layer sits this high in the block.
     private static final double TOP_HEIGHT = 8 / 16d;
     // Node ids on the top layer start here, so they never clash with the bottom layer's ids.
