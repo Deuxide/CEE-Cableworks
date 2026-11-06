@@ -6,8 +6,8 @@
     32
   ],
   "textures": {
-    "0": "cableworks:block/ctstexture",
-    "particle": "cableworks:block/ctstexture"
+    "0": "cableworks:block/hctstexture",
+    "particle": "cableworks:block/hctstexture"
   },
   "elements": [
     {
