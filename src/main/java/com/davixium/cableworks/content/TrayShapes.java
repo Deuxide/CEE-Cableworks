@@ -16,9 +16,9 @@ public final class TrayShapes {
         {0, 0, 0, 14, 1, 14},
     };
 
-    // The heavy straight tray: one rectangle, the same width as the straight tray, as high as its end caps.
+    // The heavy straight tray: one full block across, 2 pixels high.
     public static final double[][] HEAVY_STRAIGHT = {
-        {2, 0, 0, 14, 4, 16},
+        {0, 0, 0, 16, 2, 16},
     };
 
     // Rotated 180 degrees from the model's own footprint.
