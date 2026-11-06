@@ -16,16 +16,9 @@ public final class TrayShapes {
         {0, 0, 0, 14, 1, 14},
     };
 
-    // The heavy straight tray: two end caps, three rail slats and three clamps, from its model.
+    // The heavy straight tray: one rectangle, the same width as the straight tray, as high as its end caps.
     public static final double[][] HEAVY_STRAIGHT = {
-        {14, 0, 0, 16, 4, 16},
-        {0, 0, 0, 2, 4, 16},
-        {2, 0, 0, 14, 1, 1},
-        {2, 0, 7, 14, 1, 9},
-        {2, 0, 15, 14, 1, 16},
-        {11, 1, 7, 13, 3, 9},
-        {7, 1, 7, 9, 3, 9},
-        {3, 1, 7, 5, 3, 9},
+        {2, 0, 0, 14, 4, 16},
     };
 
     // Rotated 180 degrees from the model's own footprint.
