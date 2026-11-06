@@ -53,7 +53,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     /** What one layer holds: nothing, or a tray of a kind. */
     public enum TrayLayer implements StringRepresentable {
-        NONE("none"), STRAIGHT("straight"), BEND("bend"), TEE("tee");
+        NONE("none"), STRAIGHT("straight"), BEND("bend"), TEE("tee"), HEAVY_STRAIGHT("heavy_straight");
 
         private final String serializedName;
 
@@ -71,6 +71,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
                 case STRAIGHT -> TrayLayer.STRAIGHT;
                 case BEND -> TrayLayer.BEND;
                 case TEE -> TrayLayer.TEE;
+                case HEAVY_STRAIGHT -> TrayLayer.HEAVY_STRAIGHT;
             };
         }
 
@@ -80,6 +81,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
                 case STRAIGHT -> TrayRules.Kind.STRAIGHT;
                 case BEND -> TrayRules.Kind.BEND;
                 case TEE -> TrayRules.Kind.TEE;
+                case HEAVY_STRAIGHT -> TrayRules.Kind.HEAVY_STRAIGHT;
             };
         }
     }
@@ -94,19 +96,22 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     // All nodes are small, 1x1 pixels.
     private static final float NODE_SIZE = 1 / 16f;
+    // The heavy tray's nodes are 2x2.
+    private static final float HEAVY_NODE_SIZE = 3 / 16f;
     // The top layer sits this high in the block.
     private static final double TOP_HEIGHT = 8 / 16d;
     // Node ids on the top layer start here, so they never clash with the bottom layer's ids.
     private static final int TOP_NODE_OFFSET = 100;
 
     // Collision shape for each (bottom, top) pair, where each index is layer ordinal * 4 + facing.
-    private static final VoxelShape[][] SHAPES = new VoxelShape[16][16];
+    private static final int LAYER_COUNT = TrayLayer.values().length;
+    private static final VoxelShape[][] SHAPES = new VoxelShape[LAYER_COUNT * 4][LAYER_COUNT * 4];
 
     private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
 
     static {
-        VoxelShape[] bottom = new VoxelShape[16];
-        VoxelShape[] top = new VoxelShape[16];
+        VoxelShape[] bottom = new VoxelShape[LAYER_COUNT * 4];
+        VoxelShape[] top = new VoxelShape[LAYER_COUNT * 4];
         for (TrayLayer layer : TrayLayer.values()) {
             double[][] boxes = boxesOf(layer);
             if (boxes == null)
@@ -118,8 +123,8 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
                 top[index(layer, facing)] = high[facing];
             }
         }
-        for (int b = 0; b < 16; b++) {
-            for (int t = 0; t < 16; t++) {
+        for (int b = 0; b < LAYER_COUNT * 4; b++) {
+            for (int t = 0; t < LAYER_COUNT * 4; t++) {
                 VoxelShape shape = Shapes.empty();
                 if (bottom[b] != null)
                     shape = Shapes.or(shape, bottom[b]);
@@ -151,6 +156,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             case STRAIGHT -> TrayShapes.STRAIGHT;
             case BEND -> TrayShapes.BEND;
             case TEE -> TrayShapes.TEE;
+            case HEAVY_STRAIGHT -> TrayShapes.HEAVY_STRAIGHT;
         };
     }
 
@@ -161,6 +167,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             case STRAIGHT -> TrayNodes.STRAIGHT;
             case BEND -> TrayNodes.BEND;
             case TEE -> TrayNodes.TEE;
+            case HEAVY_STRAIGHT -> TrayNodes.HEAVY_STRAIGHT;
         };
     }
 
@@ -334,6 +341,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             case STRAIGHT -> new ItemStack(CableWorks.CABLE_TRAY_STRAIGHT_ITEM.get());
             case BEND -> new ItemStack(CableWorks.CABLE_TRAY_BEND_ITEM.get());
             case TEE -> new ItemStack(CableWorks.CABLE_TRAY_TEE_ITEM.get());
+            case HEAVY_STRAIGHT -> new ItemStack(CableWorks.CABLE_TRAY_HEAVY_STRAIGHT_ITEM.get());
         };
     }
 
@@ -395,7 +403,7 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
 
     @Override
     public float getNodeSize(Level level, BlockPos pos, BlockState state, int id) {
-        return NODE_SIZE;
+        return layerOf(state, slotOfNode(id)) == TrayLayer.HEAVY_STRAIGHT ? HEAVY_NODE_SIZE : NODE_SIZE;
     }
 
     @Override

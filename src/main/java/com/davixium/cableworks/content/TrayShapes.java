@@ -16,6 +16,11 @@ public final class TrayShapes {
         {0, 0, 0, 14, 1, 14},
     };
 
+    // The heavy straight tray: one full block across, 2 pixels high.
+    public static final double[][] HEAVY_STRAIGHT = {
+        {0, 0, 0, 16, 2, 16},
+    };
+
     // Rotated 180 degrees from the model's own footprint.
     public static final double[][] TEE = {
         {0, 0, 0, 14, 1, 16},

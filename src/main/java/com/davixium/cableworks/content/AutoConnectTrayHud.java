@@ -17,8 +17,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
 /**
- * Hint above the hotbar while the held spool has a selected node on a cable tray. It fades in and out. The word "Alt" is
- * white at 60% opacity, and fully opaque while Alt is held.
+ * Hint above the hotbar while the held spool has a selected node on a cable tray. It fades in and out. The word "Ctrl" is
+ * white at 60% opacity, and fully opaque while Ctrl is held.
  */
 @EventBusSubscriber(modid = CableWorks.MODID, value = Dist.CLIENT)
 public final class AutoConnectTrayHud {
@@ -58,16 +58,16 @@ public final class AutoConnectTrayHud {
 
         Font font = mc.font;
         String before = "Hold ";
-        String key = "Alt";
+        String key = "Ctrl";
         String after = " to auto-connect";
         int total = font.width(before) + font.width(key) + font.width(after);
         int x = (graphics.guiWidth() - total) / 2;
         int y = graphics.guiHeight() - 59;
 
-        boolean fullAlt = Screen.hasAltDown();
+        boolean fullKey = Screen.hasControlDown();
         graphics.drawString(font, before, x, y, withAlpha(BLUE, alpha), true);
         x += font.width(before);
-        graphics.drawString(font, key, x, y, withAlpha(fullAlt ? WHITE : WHITE_FAINT, alpha), true);
+        graphics.drawString(font, key, x, y, withAlpha(fullKey ? WHITE : WHITE_FAINT, alpha), true);
         x += font.width(key);
         graphics.drawString(font, after, x, y, withAlpha(BLUE, alpha), true);
     }

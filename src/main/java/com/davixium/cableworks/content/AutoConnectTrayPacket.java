@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Sent when the player alt-clicks a cable tray while holding a wire spool with a selected node. The server can't see the
- * Alt key, so the client sends this instead of the normal click.
+ * Ctrl key, so the client sends this instead of the normal click.
  */
 public record AutoConnectTrayPacket(BlockPos pos, Vec3 clickLocation, boolean offHand) implements ServerboundPacketPayload {
     // Vec3 has no stream codec here, so the click position goes as three doubles.

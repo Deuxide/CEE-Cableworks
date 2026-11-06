@@ -19,7 +19,7 @@ import java.util.Map;
  * A placed kind, held kind and cursor zone with no entry gives no preview.
  */
 public final class TrayRules {
-    public enum Kind { STRAIGHT, BEND, TEE }
+    public enum Kind { STRAIGHT, BEND, TEE, HEAVY_STRAIGHT }
 
     // Cursor zones, clockwise from the placed tray's north (its facing).
     public enum Zone { N, NE, E, SE, S, SW, W, NW }
@@ -131,12 +131,17 @@ public final class TrayRules {
 
     /** The rotations for each player side ({north, east, south, west}), or null for no preview. */
     public static int[] previewFor(Kind placed, Kind held, Zone zone) {
-        return PREVIEW.get(placed + "/" + held + "/" + zone);
+        return PREVIEW.get(rulesKind(placed) + "/" + rulesKind(held) + "/" + zone);
     }
 
     /** The spot for each player side ({north, east, south, west}, 0 front, 1 right, 2 back, 3 left), or null for none. */
     public static int[] spotFor(Kind placed, Zone zone) {
-        return SPOT.get(placed + "/" + zone);
+        return SPOT.get(rulesKind(placed) + "/" + zone);
+    }
+
+    // The heavy straight tray follows the same rules as the straight tray.
+    private static Kind rulesKind(Kind kind) {
+        return kind == Kind.HEAVY_STRAIGHT ? Kind.STRAIGHT : kind;
     }
 
     private TrayRules() {

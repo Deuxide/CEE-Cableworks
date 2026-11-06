@@ -233,6 +233,84 @@
         "model": "cableworks:block/cable_tray_tee_top",
         "y": 270
       }
+    },
+    {
+      "when": {
+        "bottom": "heavy_straight",
+        "bottom_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight"
+      }
+    },
+    {
+      "when": {
+        "bottom": "heavy_straight",
+        "bottom_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "bottom": "heavy_straight",
+        "bottom_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "bottom": "heavy_straight",
+        "bottom_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "top": "heavy_straight",
+        "top_facing": "north"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight_top"
+      }
+    },
+    {
+      "when": {
+        "top": "heavy_straight",
+        "top_facing": "east"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight_top",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "top": "heavy_straight",
+        "top_facing": "south"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight_top",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "top": "heavy_straight",
+        "top_facing": "west"
+      },
+      "apply": {
+        "model": "cableworks:block/cable_tray_heavy_straight_top",
+        "y": 270
+      }
     }
   ]
 }

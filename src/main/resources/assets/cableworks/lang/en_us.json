@@ -14,5 +14,6 @@
   "message.cableworks.auto_connect_fail.already": "Those nodes are already connected",
   "message.cableworks.auto_connect_fail.unregistered": "A connector on the route is not registered yet",
   "message.cableworks.auto_connect_fail.far": "That section is too long for one cable",
-  "message.cableworks.auto_connect_fail.unknown": "Could not connect the cable"
+  "message.cableworks.auto_connect_fail.unknown": "Could not connect the cable",
+  "item.cableworks.cable_tray_heavy_straight": "Heavy Cable Tray (Straight)"
 }
