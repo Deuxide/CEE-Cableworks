@@ -14,7 +14,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
- * Client side: holding Alt while clicking a cable tray with a wire spool that has a selected node sends the auto-connect
+ * Client side: holding Ctrl while clicking a cable tray with a wire spool that has a selected node sends the auto-connect
  * packet instead of the normal click.
  */
 @EventBusSubscriber(modid = CableWorks.MODID, value = Dist.CLIENT)
@@ -25,7 +25,7 @@ public final class AutoConnectTrayEvents {
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (!event.getLevel().isClientSide() || !Screen.hasAltDown())
+        if (!event.getLevel().isClientSide() || !Screen.hasControlDown())
             return;
         if (!(event.getLevel().getBlockState(event.getPos()).getBlock() instanceof CableTrayBlock))
             return;

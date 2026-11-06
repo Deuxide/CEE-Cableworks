@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Alt-click with a wire spool on a cable tray. The clicked node is the end, the spool's selected node is the start.
+ * Ctrl-click with a wire spool on a cable tray. The clicked node is the end, the spool's selected node is the start.
  * <p>
  * The route follows the trays' openings through straight and bend trays, turning at bends. Tees stop it. Every tray on the
  * route gets one cable section: the cable runs from the start node, through the node closest to it on each tray, to the end
