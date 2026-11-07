@@ -5,11 +5,15 @@ import com.george_vi.electroenergetics.CEESimulatedDevices;
 import com.george_vi.electroenergetics.content.connector.ConnectorDevice;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import net.createmod.catnip.placement.IPlacementHelper;
 import net.createmod.catnip.placement.PlacementHelpers;
 import net.createmod.catnip.placement.PlacementOffset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
@@ -27,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
@@ -297,6 +302,26 @@ public class CableTrayBlock extends SimpleElectricalDeviceBlock<ConnectorDevice>
             stack.shrink(1);
         level.playSound(null, target.pos(), state.getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1f, 0.8f);
         return ItemInteractionResult.SUCCESS;
+    }
+
+    // A creative break removes connections so they don't drop. The base class removes the connections of every node on the
+    // block. With both layers here, only the layer being broken should lose its connections, so the other layer keeps them.
+    @Override
+    public @NotNull BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        boolean bothLayers = layerOf(state, Slot.BOTTOM) != TrayLayer.NONE && layerOf(state, Slot.TOP) != TrayLayer.NONE;
+        if (level instanceof ServerLevel sl && player.isCreative() && bothLayers) {
+            Slot broken = aimedSlot(player, pos);
+            InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
+            for (int i = 0; i < nodesOf(layerOf(state, broken)).length; i++) {
+                InWorldNode node = new InWorldNode(nodeId(broken, i), pos);
+                for (InWorldNodeConnection connection : sd.getConnections(node))
+                    sd.removeConnection(connection);
+            }
+            level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+            return state;
+        }
+        // A break of the last layer takes the whole block, so the base class removes all of its connections.
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     // Breaking one layer only removes that layer, if the other layer is still here.
